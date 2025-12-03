@@ -11,23 +11,53 @@ console = Console()
 
 def render_error(message: str) -> None:
     """Helper for consistent error message styling."""
-    console.print(f"[red]{message}[/red]")
+    console.print(f"\n[red]{message}[/red]\n")
 
 
 def render_warning(message: str) -> None:
     """Helper for consistent warning message styling."""
-    console.print(f"[yellow]{message}[/yellow]")
+    console.print(f"\n[yellow]{message}[/yellow]\n")
 
 
 def render_success(message: str) -> None:
     """Helper for consistent success message styling."""
-    console.print(f"[green]{message}[/green]")
+    console.print(f"\n[green]{message}[/green]\n")
 
 
 def render_budget_status(
-    budget: Budget, total_spent: int, month_name: str, year: int
+    budget: Budget | None,
+    total_spent: int,
+    month_name: str,
+    target_year: int,
 ) -> Panel:
     """Renders the monthly budget status panel with a progress bar."""
+    BAR_WIDTH = 30
+    TOTAL_WIDTH = BAR_WIDTH + 1 + 4
+
+    if not budget:
+        stats_table = Table.grid(padding=(0, 2))
+        stats_table.add_column(style="dim")
+        stats_table.add_column(justify="right")
+
+        stats_table.add_row("Budgeted:", "-")
+        stats_table.add_row("Spent:", f"[bold]${total_spent:,.2f}[/bold]")
+        stats_table.add_row("Remaining:", "-")
+
+        content = Table.grid()
+        content.add_row(stats_table)
+        content.add_row("")
+
+        dummy_bar = " " * TOTAL_WIDTH
+        content.add_row(dummy_bar)
+
+        return Panel(
+            content,
+            title=f"[dim]{month_name} {target_year}[/dim]",
+            subtitle="[dim]NO LIMIT[/dim]",
+            border_style="dim",
+            expand=False,
+        )
+
     remaining = budget.amount - total_spent
     percent_spent = (total_spent / budget.amount) * 100 if budget.amount > 0 else 0
 
@@ -49,9 +79,8 @@ def render_budget_status(
     stats_table.add_row("Spent:", f"[bold {color}]${total_spent:,.2f}[/]")
     stats_table.add_row("Remaining:", f"${remaining:,.2f}")
 
-    bar_width = 30
-    filled_len = min(int((total_spent / budget.amount) * bar_width), bar_width)
-    empty_len = bar_width - filled_len
+    filled_len = min(int((total_spent / budget.amount) * BAR_WIDTH), BAR_WIDTH)
+    empty_len = BAR_WIDTH - filled_len
     bar_filled = "━" * filled_len
     bar_empty = "━" * empty_len
     progress_bar = f"[{color}]{bar_filled}[/][dim]{bar_empty}[/]"
@@ -59,11 +88,11 @@ def render_budget_status(
     content = Table.grid()
     content.add_row(stats_table)
     content.add_row("")
-    content.add_row(f"{progress_bar} [bold]{int(percent_spent)}%[/]")
+    content.add_row(f"{progress_bar} [bold]{int(percent_spent):>3}%[/]")
 
     return Panel(
         content,
-        title=f"[b]{month_name} {year}[/b]",
+        title=f"[b]{month_name} {target_year}[/b]",
         subtitle=f"[bold {color}]{status_msg}[/]",
         expand=False,
         border_style=color,
@@ -84,11 +113,11 @@ def render_transaction_list(transactions: list[Transaction], page_total: int) ->
     return table
 
 
-def render_budget_list(budgets: list[Budget], year: int) -> Table:
+def render_budget_list(budgets: list[Budget], target_year: int) -> Table:
     """Renders a list of budgets for a specific year."""
     total_budgeted = sum(b.amount for b in budgets)
 
-    table = Table(title=f"Budget List ({year})", show_footer=True)
+    table = Table(title=f"Budget List ({target_year})", show_footer=True)
 
     table.add_column("ID", justify="right", style="dim")
     table.add_column("Month", style="cyan", footer="Total Budgeted:")
