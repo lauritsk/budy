@@ -2,15 +2,17 @@ import calendar
 from datetime import date
 from typing import Annotated, Optional
 
-from rich import print
+from rich.console import Console
 from sqlmodel import Session, select
 from typer import Exit, Option, Typer, confirm
 
 from budy.constants import MAX_YEAR, MIN_YEAR
 from budy.database import engine
 from budy.models import Budget
+from budy.views import render_warning
 
 app = Typer(no_args_is_help=True)
+console = Console()
 
 
 @app.command(name="add")
@@ -64,15 +66,17 @@ def create_budget(
         ).first()
 
         if existing_budget:
-            print(
-                f"\n[yellow]Warning![/yellow] A budget for [b]{month_name} {final_target_year}[/b] already exists.\n"
+            console.print(
+                render_warning(
+                    f"A budget for [b]{month_name} {final_target_year}[/] already exists."
+                )
             )
-            print(
-                f"Change: [red]${existing_budget.amount}[/red] -> [green]${target_amount}[/green]\n"
+            console.print(
+                f"Change: [red]${existing_budget.amount}[/] -> [green]${target_amount}[/]\n"
             )
 
             if not confirm(f"Overwrite the {month_name} budget?"):
-                print("[dim]Operation cancelled.[/dim]")
+                print("[dim]Operation cancelled.[/]")
                 raise Exit(code=0)
 
             old_amount = existing_budget.amount
@@ -83,8 +87,8 @@ def create_budget(
             session.refresh(existing_budget)
 
             print(
-                f"[green]✓ Updated![/green] {month_name} {final_target_year}: "
-                f"[strike dim]${old_amount}[/strike dim] -> [bold green]${target_amount}[/bold green]"
+                f"[green]✓ Updated![/] {month_name} {final_target_year}: "
+                f"[strike dim]${old_amount}[/] -> [bold green]${target_amount}[/]"
             )
             return
 
@@ -99,7 +103,7 @@ def create_budget(
         session.refresh(budget)
 
         print(
-            f"[green]✓ Added![/green] Budget for [bold]{month_name} {final_target_year}[/bold] set to [green]${target_amount}[/green]"
+            f"[green]✓ Added![/] Budget for [bold]{month_name} {final_target_year}[/] set to [green]${target_amount}[/]"
         )
 
 

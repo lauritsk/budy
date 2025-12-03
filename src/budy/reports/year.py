@@ -7,10 +7,10 @@ from rich.table import Table
 from sqlmodel import Session, func, select
 from typer import Option, Typer
 
-from budy import views
 from budy.constants import MAX_YEAR, MIN_YEAR
 from budy.database import engine
 from budy.models import Budget, Transaction
+from budy.views import render_budget_status
 
 app = Typer(no_args_is_help=True)
 console = Console()
@@ -68,7 +68,7 @@ def show_yearly_report(
                     or 0
                 )
 
-            month_panel = views.render_budget_status(
+            month_panel = render_budget_status(
                 budget=budget,
                 total_spent=total_spent,
                 month_name=month_name,

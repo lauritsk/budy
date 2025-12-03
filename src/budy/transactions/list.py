@@ -1,12 +1,12 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from rich.console import Console
 from sqlmodel import Session, desc, select
 from typer import Option, Typer
 
-from budy import views
 from budy.database import engine
 from budy.models import Transaction
+from budy.views import render_transaction_list, render_warning
 
 app = Typer(no_args_is_help=True)
 console = Console()
@@ -16,7 +16,7 @@ console = Console()
 @app.command(name="ls", hidden=True)
 def read_transactions(
     offset: Annotated[
-        Optional[int],
+        int,
         Option(
             "--offset",
             "-o",
@@ -24,7 +24,7 @@ def read_transactions(
         ),
     ] = 0,
     limit: Annotated[
-        Optional[int],
+        int,
         Option(
             "--limit",
             "-l",
@@ -44,12 +44,12 @@ def read_transactions(
         )
 
         if not transactions:
-            views.render_warning("No transactions found.")
+            console.print(render_warning("No transactions found."))
             return
 
         page_total = sum(t.amount for t in transactions)
 
-        console.print(views.render_transaction_list(transactions, page_total))
+        console.print(render_transaction_list(transactions, page_total))
 
 
 if __name__ == "__main__":
