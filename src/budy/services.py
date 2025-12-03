@@ -1,4 +1,5 @@
 import calendar
+import statistics
 from collections import defaultdict
 from collections.abc import Callable
 from datetime import date, timedelta
@@ -10,23 +11,6 @@ from sqlmodel import Session, asc, col, desc, func, or_, select
 import budy.importers as importers
 from budy.database import engine
 from budy.models import Budget, Transaction
-
-
-from collections.abc import Callable
-
-
-
-
-
-
-
-
-from pathlib import Path
-
-import budy.importers as importers
-
-
-import statistics
 
 
 def get_yearly_report_data(year: int) -> list[dict]:
@@ -190,9 +174,7 @@ def search_transactions(query: str, limit: int) -> list[Transaction]:
         return list(session.exec(stmt).all())
 
 
-def import_transactions(
-    bank: str, file_path: Path, dry_run: bool
-) -> dict:
+def import_transactions(bank: str, file_path: Path, dry_run: bool) -> dict:
     """
     Imports transactions from a bank CSV file.
     """
@@ -283,23 +265,11 @@ def generate_budgets_suggestions(target_year: int, force: bool) -> list[dict]:
 
 
 def add_or_update_budget(
-
-
     target_amount: float,
-
-
     target_month: int,
-
-
     target_year: int,
-
-
     confirmation_callback: Callable[[str], bool],
-
-
 ) -> dict:
-
-
     """
 
 
@@ -311,146 +281,59 @@ def add_or_update_budget(
 
     """
 
-
     with Session(engine) as session:
-
-
         month_name = calendar.month_name[target_month]
-
 
         target_cents = int(round(target_amount * 100))
 
-
-
-
-
         existing_budget = session.exec(
-
-
             select(Budget).where(
-
-
                 Budget.target_year == target_year,
-
-
                 Budget.target_month == target_month,
-
-
             )
-
-
         ).first()
 
-
-
-
-
         if existing_budget:
-
-
             old_amount = existing_budget.amount
 
-
             if not confirmation_callback(
-
-
                 f"A budget for {month_name} {target_year} already exists. Overwrite?"
-
-
             ):
-
-
                 return {"action": "cancelled"}
-
-
-
-
 
             existing_budget.amount = target_cents
 
-
             session.add(existing_budget)
-
 
             session.commit()
 
-
             return {
-
-
                 "action": "updated",
-
-
                 "old_amount": old_amount,
-
-
                 "new_amount": target_cents,
-
-
                 "month_name": month_name,
-
-
                 "year": target_year,
-
-
             }
 
-
-
-
-
         new_budget = Budget(
-
-
             amount=target_cents,
-
-
             target_month=target_month,
-
-
             target_year=target_year,
-
-
         )
-
 
         session.add(new_budget)
 
-
         session.commit()
 
-
         return {
-
-
             "action": "created",
-
-
             "new_amount": target_cents,
-
-
             "month_name": month_name,
-
-
             "year": target_year,
-
-
         }
 
 
-
-
-
-
-
-
-def generate_monthly_report_data(
-
-
-    target_month: int, target_year: int
-
-
-) -> dict:
+def generate_monthly_report_data(target_month: int, target_year: int) -> dict:
     """
     Generates all data needed for the monthly budget status report.
     """

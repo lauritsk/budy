@@ -1,6 +1,3 @@
-import calendar
-from statistics import mean
-
 from rich.console import Console
 from rich.table import Table
 from typer import Typer
@@ -51,7 +48,7 @@ def show_weekday_report() -> None:
         table.add_row(
             day["day_name"],
             f"${day['avg_amount'] / 100:,.2f}",
-            str(day['count']),
+            str(day["count"]),
             f"${day['total_amount'] / 100:,.2f}",
         )
 
