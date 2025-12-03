@@ -4,12 +4,10 @@ from typing import Annotated, Optional
 
 from rich.console import Console
 from rich.table import Table
-from sqlmodel import Session, func, select
 from typer import Option, Typer
 
 from budy.constants import MAX_YEAR, MIN_YEAR
-from budy.database import engine
-from budy.models import Budget, Transaction
+from budy.services import get_yearly_report_data
 from budy.views import render_budget_status
 
 app = Typer(no_args_is_help=True)
@@ -17,7 +15,6 @@ console = Console()
 
 
 @app.command(name="year")
-# @app.command(name="y", hidden=True)
 def show_yearly_report(
     year: Annotated[
         Optional[int],
@@ -40,39 +37,16 @@ def show_yearly_report(
     grid.add_column()
 
     panels = []
+    monthly_reports = get_yearly_report_data(year=target_year)
 
-    with Session(engine) as session:
-        for target_month in range(1, 13):
-            month_name = calendar.month_name[target_month]
-
-            budget = session.exec(
-                select(Budget).where(
-                    Budget.target_year == target_year,
-                    Budget.target_month == target_month,
-                )
-            ).first()
-
-            _, last_day = calendar.monthrange(target_year, target_month)
-            start_date = date(target_year, target_month, 1)
-            end_date = date(target_year, target_month, last_day)
-
-            total_spent = (
-                session.scalar(
-                    select(func.sum(Transaction.amount)).where(
-                        Transaction.entry_date >= start_date,
-                        Transaction.entry_date <= end_date,
-                    )
-                )
-                or 0
-            )
-
-            month_panel = render_budget_status(
-                budget=budget,
-                total_spent=total_spent,
-                month_name=month_name,
-                target_year=target_year,
-            )
-            panels.append(month_panel)
+    for report in monthly_reports:
+        month_panel = render_budget_status(
+            budget=report["budget"],
+            total_spent=report["total_spent"],
+            month_name=report["month_name"],
+            target_year=report["target_year"],
+        )
+        panels.append(month_panel)
 
     for i in range(0, len(panels), 3):
         row_panels = panels[i : i + 3]

@@ -1,15 +1,456 @@
 import calendar
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import date, timedelta
+from pathlib import Path
 from statistics import mean, median
 
-from sqlmodel import Session, asc, func, select
+from sqlmodel import Session, asc, col, desc, func, or_, select
 
+import budy.importers as importers
 from budy.database import engine
 from budy.models import Budget, Transaction
 
 
-def generate_monthly_report_data(target_month: int, target_year: int) -> dict:
+from collections.abc import Callable
+
+
+
+
+
+
+
+
+from pathlib import Path
+
+import budy.importers as importers
+
+
+import statistics
+
+
+def get_yearly_report_data(year: int) -> list[dict]:
+    """
+    Gathers all data needed for the yearly report.
+    """
+    monthly_data = []
+    with Session(engine) as session:
+        for month in range(1, 13):
+            month_name = calendar.month_name[month]
+            budget = session.exec(
+                select(Budget).where(
+                    Budget.target_year == year, Budget.target_month == month
+                )
+            ).first()
+
+            _, last_day = calendar.monthrange(year, month)
+            start_date = date(year, month, 1)
+            end_date = date(year, month, last_day)
+
+            total_spent = (
+                session.scalar(
+                    select(func.sum(Transaction.amount)).where(
+                        Transaction.entry_date >= start_date,
+                        Transaction.entry_date <= end_date,
+                    )
+                )
+                or 0
+            )
+
+            monthly_data.append(
+                {
+                    "budget": budget,
+                    "total_spent": total_spent,
+                    "month_name": month_name,
+                    "target_year": year,
+                }
+            )
+    return monthly_data
+
+
+def get_weekday_report_data() -> list[dict]:
+    """
+    Analyzes spending habits by day of the week.
+    """
+    with Session(engine) as session:
+        transactions = session.exec(select(Transaction)).all()
+        if not transactions:
+            return []
+
+        day_buckets = defaultdict(list)
+        for t in transactions:
+            day_buckets[t.entry_date.weekday()].append(t.amount)
+
+        report_data = []
+        for day_idx in range(7):
+            amounts = day_buckets[day_idx]
+            if not amounts:
+                report_data.append(
+                    {
+                        "day_name": calendar.day_name[day_idx],
+                        "avg_amount": 0,
+                        "total_amount": 0,
+                        "count": 0,
+                    }
+                )
+                continue
+
+            report_data.append(
+                {
+                    "day_name": calendar.day_name[day_idx],
+                    "avg_amount": mean(amounts),
+                    "total_amount": sum(amounts),
+                    "count": len(amounts),
+                }
+            )
+        return report_data
+
+
+def get_volatility_report_data(year: int | None) -> dict:
+    """
+    Calculates spending volatility and identifies outliers.
+    """
+    with Session(engine) as session:
+        query = select(Transaction)
+        if year:
+            query = query.where(
+                Transaction.entry_date >= date(year, 1, 1),
+                Transaction.entry_date <= date(year, 12, 31),
+            )
+
+        transactions = session.exec(query.order_by(desc(Transaction.amount))).all()
+        if not transactions:
+            return {}
+
+        amounts = [t.amount for t in transactions]
+        try:
+            stdev = statistics.stdev(amounts)
+        except statistics.StatisticsError:
+            stdev = 0
+
+        return {
+            "total_count": len(amounts),
+            "avg_amount": statistics.mean(amounts),
+            "stdev_amount": stdev,
+            "outliers": transactions[:5],
+        }
+
+
+def get_top_payees(year: int | None, limit: int) -> list[tuple[str, int, int, int]]:
+    """
+    Ranks payees by total spending for a given year or all time.
+    """
+    with Session(engine) as session:
+        query = select(Transaction)
+        if year:
+            query = query.where(
+                Transaction.entry_date >= date(year, 1, 1),
+                Transaction.entry_date <= date(year, 12, 31),
+            )
+
+        transactions = session.exec(query).all()
+        if not transactions:
+            return []
+
+        grouped = defaultdict(list)
+        for t in transactions:
+            name = (t.receiver or "Unknown").strip()
+            if not name:
+                name = "Unknown"
+            grouped[name].append(t.amount)
+
+        summary = []
+        for name, amounts in grouped.items():
+            total = sum(amounts)
+            count = len(amounts)
+            avg = int(total / count)
+            summary.append((name, count, total, avg))
+
+        summary.sort(key=lambda x: x[2], reverse=True)
+        return summary[:limit]
+
+
+def search_transactions(query: str, limit: int) -> list[Transaction]:
+    """
+    Searches for transactions by a keyword in the receiver or description.
+    """
+    with Session(engine) as session:
+        pattern = f"%{query}%"
+        stmt = (
+            select(Transaction)
+            .where(
+                or_(
+                    col(Transaction.receiver).ilike(pattern),
+                    col(Transaction.description).ilike(pattern),
+                )
+            )
+            .order_by(desc(Transaction.entry_date))
+            .limit(limit)
+        )
+        return list(session.exec(stmt).all())
+
+
+def import_transactions(
+    bank: str, file_path: Path, dry_run: bool
+) -> dict:
+    """
+    Imports transactions from a bank CSV file.
+    """
+    if bank.lower() == "lhv":
+        importer = importers.LHVImporter()
+    elif bank.lower() == "seb":
+        importer = importers.SEBImporter()
+    elif bank.lower() == "swedbank":
+        importer = importers.SwedbankImporter()
+    else:
+        raise ValueError(f"No importer found for {bank}")
+
+    transactions = importer.process_file(file_path)
+
+    if not dry_run and transactions:
+        with Session(engine) as session:
+            session.add_all(transactions)
+            session.commit()
+
+    return {"transactions": transactions, "count": len(transactions)}
+
+
+def create_transaction(amount: float, entry_date: date | None) -> Transaction:
+    """
+    Creates and saves a new transaction.
+    """
+    with Session(engine) as session:
+        final_date = entry_date if entry_date else date.today()
+        amount_cents = int(round(amount * 100))
+        transaction = Transaction(amount=amount_cents, entry_date=final_date)
+        session.add(transaction)
+        session.commit()
+        session.refresh(transaction)
+        return transaction
+
+
+def save_budget_suggestions(suggestions: list[dict]) -> int:
+    """
+    Saves a list of budget suggestions to the database.
+    """
+    with Session(engine) as session:
+        count = 0
+        for item in suggestions:
+            if item["existing"]:
+                item["existing"].amount = item["amount"]
+                session.add(item["existing"])
+            else:
+                new_budget = Budget(
+                    target_year=item["year"],
+                    target_month=item["month"],
+                    amount=item["amount"],
+                )
+                session.add(new_budget)
+            count += 1
+        session.commit()
+    return count
+
+
+def generate_budgets_suggestions(target_year: int, force: bool) -> list[dict]:
+    """
+    Generates budget suggestions for a given year based on historical data.
+    """
+    suggestions = []
+    with Session(engine) as session:
+        existing_budgets = session.exec(
+            select(Budget).where(Budget.target_year == target_year)
+        ).all()
+        existing_map = {b.target_month: b for b in existing_budgets}
+
+        for month in range(1, 13):
+            month_name = calendar.month_name[month]
+
+            if month in existing_map and not force:
+                continue
+
+            suggested_amount = suggest_budget_amount(session, month, target_year)
+
+            if suggested_amount > 0:
+                suggestions.append(
+                    {
+                        "month": month,
+                        "month_name": month_name,
+                        "amount": suggested_amount,
+                        "existing": existing_map.get(month),
+                    }
+                )
+    return suggestions
+
+
+def add_or_update_budget(
+
+
+    target_amount: float,
+
+
+    target_month: int,
+
+
+    target_year: int,
+
+
+    confirmation_callback: Callable[[str], bool],
+
+
+) -> dict:
+
+
+    """
+
+
+    Adds a new budget or updates an existing one after confirmation.
+
+
+    Returns a dict with the result of the operation.
+
+
+    """
+
+
+    with Session(engine) as session:
+
+
+        month_name = calendar.month_name[target_month]
+
+
+        target_cents = int(round(target_amount * 100))
+
+
+
+
+
+        existing_budget = session.exec(
+
+
+            select(Budget).where(
+
+
+                Budget.target_year == target_year,
+
+
+                Budget.target_month == target_month,
+
+
+            )
+
+
+        ).first()
+
+
+
+
+
+        if existing_budget:
+
+
+            old_amount = existing_budget.amount
+
+
+            if not confirmation_callback(
+
+
+                f"A budget for {month_name} {target_year} already exists. Overwrite?"
+
+
+            ):
+
+
+                return {"action": "cancelled"}
+
+
+
+
+
+            existing_budget.amount = target_cents
+
+
+            session.add(existing_budget)
+
+
+            session.commit()
+
+
+            return {
+
+
+                "action": "updated",
+
+
+                "old_amount": old_amount,
+
+
+                "new_amount": target_cents,
+
+
+                "month_name": month_name,
+
+
+                "year": target_year,
+
+
+            }
+
+
+
+
+
+        new_budget = Budget(
+
+
+            amount=target_cents,
+
+
+            target_month=target_month,
+
+
+            target_year=target_year,
+
+
+        )
+
+
+        session.add(new_budget)
+
+
+        session.commit()
+
+
+        return {
+
+
+            "action": "created",
+
+
+            "new_amount": target_cents,
+
+
+            "month_name": month_name,
+
+
+            "year": target_year,
+
+
+        }
+
+
+
+
+
+
+
+
+def generate_monthly_report_data(
+
+
+    target_month: int, target_year: int
+
+
+) -> dict:
     """
     Generates all data needed for the monthly budget status report.
     """

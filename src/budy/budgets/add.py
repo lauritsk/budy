@@ -3,12 +3,10 @@ from datetime import date
 from typing import Annotated, Optional
 
 from rich.console import Console
-from sqlmodel import Session, select
 from typer import Exit, Option, Typer, confirm
 
 from budy.constants import MAX_YEAR, MIN_YEAR
-from budy.database import engine
-from budy.models import Budget
+from budy.services import add_or_update_budget
 from budy.views import render_warning
 
 app = Typer(no_args_is_help=True)
@@ -16,7 +14,6 @@ console = Console()
 
 
 @app.command(name="add")
-# @app.command(name="a", hidden=True)
 def create_budget(
     target_amount: Annotated[
         float,
@@ -51,61 +48,38 @@ def create_budget(
     ] = None,
 ) -> None:
     """Add a new budget to the database."""
-    with Session(engine) as session:
-        current_date = date.today()
-        final_target_month = target_month if target_month else current_date.month
-        final_target_year = target_year if target_year else current_date.year
+    current_date = date.today()
+    final_target_month = target_month if target_month else current_date.month
+    final_target_year = target_year if target_year else current_date.year
 
-        target_cents = int(round(target_amount * 100))
+    def confirmation_callback(message: str) -> bool:
+        console.print(render_warning(message))
+        return confirm("Overwrite?")
 
-        month_name = calendar.month_name[final_target_month]
+    result = add_or_update_budget(
+        target_amount=target_amount,
+        target_month=final_target_month,
+        target_year=final_target_year,
+        confirmation_callback=confirmation_callback,
+    )
 
-        existing_budget = session.exec(
-            select(Budget).where(
-                Budget.target_year == final_target_year,
-                Budget.target_month == final_target_month,
-            )
-        ).first()
+    if result["action"] == "cancelled":
+        print("[dim]Operation cancelled.[/]")
+        raise Exit(code=0)
 
-        if existing_budget:
-            console.print(
-                render_warning(
-                    f"A budget for [b]{month_name} {final_target_year}[/] already exists."
-                )
-            )
+    month_name = result["month_name"]
+    year = result["year"]
+    new_amount_display = result["new_amount"] / 100.0
 
-            old_amount_display = existing_budget.amount / 100.0
-            console.print(
-                f"Change: [red]${old_amount_display:,.2f}[/] -> [green]${target_amount:,.2f}[/]\n"
-            )
-
-            if not confirm(f"Overwrite the {month_name} budget?"):
-                print("[dim]Operation cancelled.[/]")
-                raise Exit(code=0)
-
-            existing_budget.amount = target_cents
-            session.add(existing_budget)
-            session.commit()
-            session.refresh(existing_budget)
-
-            print(
-                f"[green]✓ Updated![/] {month_name} {final_target_year}: "
-                f"[strike dim]${old_amount_display:,.2f}[/] -> [bold green]${target_amount:,.2f}[/]"
-            )
-            return
-
-        budget = Budget(
-            amount=target_amount,
-            target_month=final_target_month,
-            target_year=final_target_year,
-        )
-
-        session.add(budget)
-        session.commit()
-        session.refresh(budget)
-
+    if result["action"] == "updated":
+        old_amount_display = result["old_amount"] / 100.0
         print(
-            f"[green]✓ Added![/] Budget for [bold]{month_name} {final_target_year}[/] set to [green]${target_amount:,.2f}[/]"
+            f"[green]✓ Updated![/] {month_name} {year}: "
+            f"[strike dim]${old_amount_display:,.2f}[/] -> [bold green]${new_amount_display:,.2f}[/]"
+        )
+    elif result["action"] == "created":
+        print(
+            f"[green]✓ Added![/] Budget for [bold]{month_name} {year}[/] set to [green]${new_amount_display:,.2f}[/]"
         )
 
 
