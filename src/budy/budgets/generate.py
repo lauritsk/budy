@@ -1,4 +1,3 @@
-import calendar
 from typing import Annotated, Optional
 
 from rich.console import Console
@@ -76,9 +75,7 @@ def generate_budgets(
         if item["existing"]:
             current_str = f"${item['existing'].amount / 100:,.2f}"
 
-        table.add_row(
-            item["month_name"], current_str, f"${item['amount'] / 100:,.2f}"
-        )
+        table.add_row(item["month_name"], current_str, f"${item['amount'] / 100:,.2f}")
 
     console.print(table)
 
