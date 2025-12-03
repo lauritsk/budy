@@ -46,7 +46,7 @@ def create_transaction(
         session.refresh(transaction)
 
         print(
-            f"[green]✓ Added![/green] Transaction [bold]#{transaction.id}[/bold]: "
+            f"[green]✓ Added![/] Transaction [bold]#{transaction.id}[/]: "
             f"[bold]${transaction.amount}[/bold] on {transaction.entry_date.strftime('%B %d, %Y')}"
         )
 

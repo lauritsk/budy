@@ -1,27 +1,7 @@
-import calendar
-
-from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from budy.models import Budget, Transaction
-
-console = Console()
-
-
-def render_error(message: str) -> None:
-    """Helper for consistent error message styling."""
-    console.print(f"\n[red]{message}[/red]\n")
-
-
-def render_warning(message: str) -> None:
-    """Helper for consistent warning message styling."""
-    console.print(f"\n[yellow]{message}[/yellow]\n")
-
-
-def render_success(message: str) -> None:
-    """Helper for consistent success message styling."""
-    console.print(f"\n[green]{message}[/green]\n")
+from budy.models import Budget
 
 
 def render_budget_status(
@@ -52,8 +32,8 @@ def render_budget_status(
 
         return Panel(
             content,
-            title=f"[dim]{month_name} {target_year}[/dim]",
-            subtitle="[dim]NO LIMIT[/dim]",
+            title=f"[dim]{month_name} {target_year}[/]",
+            subtitle="[dim]NO LIMIT[/]",
             border_style="dim",
             expand=False,
         )
@@ -92,45 +72,8 @@ def render_budget_status(
 
     return Panel(
         content,
-        title=f"[b]{month_name} {target_year}[/b]",
+        title=f"[b]{month_name} {target_year}[/]",
         subtitle=f"[bold {color}]{status_msg}[/]",
         expand=False,
         border_style=color,
     )
-
-
-def render_transaction_list(transactions: list[Transaction], page_total: int) -> Table:
-    """Renders a table of transactions."""
-    table = Table(title="Transaction History", show_footer=True)
-    table.add_column("ID", justify="right", style="dim")
-    table.add_column("Entry Date", justify="right", style="cyan", footer="Page Total:")
-    table.add_column("Amount", justify="right", style="green", footer=f"${page_total}")
-
-    for transaction in transactions:
-        date_str = transaction.entry_date.strftime("%b %d, %Y")
-        table.add_row(str(transaction.id), date_str, f"${transaction.amount}")
-
-    return table
-
-
-def render_budget_list(budgets: list[Budget], target_year: int) -> Table:
-    """Renders a list of budgets for a specific year."""
-    total_budgeted = sum(b.amount for b in budgets)
-
-    table = Table(title=f"Budget List ({target_year})", show_footer=True)
-
-    table.add_column("ID", justify="right", style="dim")
-    table.add_column("Month", style="cyan", footer="Total Budgeted:")
-    table.add_column(
-        "Amount", justify="right", style="green", footer=f"${total_budgeted}"
-    )
-
-    for budget in budgets:
-        month_name = calendar.month_name[budget.target_month]
-        table.add_row(
-            str(budget.id),
-            month_name,
-            f"${budget.amount}",
-        )
-
-    return table

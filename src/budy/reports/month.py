@@ -6,10 +6,10 @@ from rich.console import Console
 from sqlmodel import Session, func, select
 from typer import Option, Typer
 
-from budy import views
 from budy.constants import MAX_YEAR, MIN_YEAR
 from budy.database import engine
 from budy.models import Budget, Transaction
+from budy.views import render_budget_status, render_warning
 
 app = Typer(no_args_is_help=True)
 console = Console()
@@ -68,13 +68,15 @@ def show_monthly_report(
         )
 
         if not budget:
-            views.render_warning(
-                f"\nNo budget found for {month_name} {target_year}.\n"
-                f"Use [bold]budy budget add[/bold] to set one first.\n"
+            console.print(
+                render_warning(
+                    f"No budget found for {month_name} {target_year}.\n"
+                    f"Use [bold]budy budget add[/bold] to set one first."
+                )
             )
 
         console.print(
-            views.render_budget_status(
+            render_budget_status(
                 budget=budget,
                 total_spent=total_spent,
                 month_name=month_name,

@@ -1,13 +1,13 @@
 from datetime import date
-from typing import Annotated, Optional
+from typing import Annotated
 
 from rich.console import Console
 from sqlmodel import Session, desc, select
 from typer import Option, Typer
 
-from budy import views
 from budy.database import engine
 from budy.models import Budget
+from budy.views import render_budget_list, render_warning
 
 app = Typer(no_args_is_help=True)
 console = Console()
@@ -21,7 +21,7 @@ def read_budgets(
         Option("--year", "-y", help="Filter by year."),
     ] = date.today().year,
     offset: Annotated[
-        Optional[int],
+        int,
         Option(
             "--offset",
             "-o",
@@ -29,7 +29,7 @@ def read_budgets(
         ),
     ] = 0,
     limit: Annotated[
-        Optional[int],
+        int,
         Option(
             "--limit",
             "-l",
@@ -49,11 +49,21 @@ def read_budgets(
             ).all()
         )
 
-        if not budgets:
-            views.render_warning(f"No budgets found for {target_year}")
+        budget_map = {b.target_month: b for b in budgets}
+        all_months_data = []
+
+        for month in range(12, 0, -1):
+            all_months_data.append((month, budget_map.get(month)))
+
+        display_data = all_months_data[offset : offset + limit]
+
+        if not display_data:
+            console.print(
+                render_warning(f"No months found for {target_year} in range.")
+            )
             return
 
-        console.print(views.render_budget_list(budgets, target_year))
+        console.print(render_budget_list(display_data, target_year))
 
 
 if __name__ == "__main__":
