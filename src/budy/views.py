@@ -26,7 +26,7 @@ def render_success(message: str) -> None:
 
 def render_budget_status(
     budget: Budget, total_spent: int, month_name: str, year: int
-) -> None:
+) -> Panel:
     """Renders the monthly budget status panel with a progress bar."""
     remaining = budget.amount - total_spent
     percent_spent = (total_spent / budget.amount) * 100 if budget.amount > 0 else 0
@@ -61,18 +61,16 @@ def render_budget_status(
     content.add_row("")
     content.add_row(f"{progress_bar} [bold]{int(percent_spent)}%[/]")
 
-    console.print(
-        Panel(
-            content,
-            title=f"[b]{month_name} {year}[/b]",
-            subtitle=f"[bold {color}]{status_msg}[/]",
-            expand=False,
-            border_style=color,
-        )
+    return Panel(
+        content,
+        title=f"[b]{month_name} {year}[/b]",
+        subtitle=f"[bold {color}]{status_msg}[/]",
+        expand=False,
+        border_style=color,
     )
 
 
-def render_transaction_list(transactions: list[Transaction], page_total: int) -> None:
+def render_transaction_list(transactions: list[Transaction], page_total: int) -> Table:
     """Renders a table of transactions."""
     table = Table(title="Transaction History", show_footer=True)
     table.add_column("ID", justify="right", style="dim")
@@ -83,10 +81,10 @@ def render_transaction_list(transactions: list[Transaction], page_total: int) ->
         date_str = transaction.entry_date.strftime("%b %d, %Y")
         table.add_row(str(transaction.id), date_str, f"${transaction.amount}")
 
-    console.print(table)
+    return table
 
 
-def render_budget_list(budgets: list[Budget], year: int) -> None:
+def render_budget_list(budgets: list[Budget], year: int) -> Table:
     """Renders a list of budgets for a specific year."""
     total_budgeted = sum(b.amount for b in budgets)
 
@@ -106,4 +104,4 @@ def render_budget_list(budgets: list[Budget], year: int) -> None:
             f"${budget.amount}",
         )
 
-    console.print(table)
+    return table

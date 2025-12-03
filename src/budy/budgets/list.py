@@ -53,7 +53,7 @@ def read_budgets(
             views.render_warning(f"No budgets found for {target_year}")
             return
 
-        views.render_budget_list(budgets, target_year)
+        console.print(views.render_budget_list(budgets, target_year))
 
 
 if __name__ == "__main__":

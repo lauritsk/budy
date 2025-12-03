@@ -49,7 +49,7 @@ def read_transactions(
 
         page_total = sum(t.amount for t in transactions)
 
-        views.render_transaction_list(transactions, page_total)
+        console.print(views.render_transaction_list(transactions, page_total))
 
 
 if __name__ == "__main__":
