@@ -53,23 +53,31 @@ def show_monthly_report(
             )
         ).first()
 
-        if not budget:
-            views.render_warning(
-                f"No budget found for {month_name} {target_year}.\n"
-                f"Use [bold]budy budget add[/bold] to set one first."
-            )
-            return
-
         _, last_day = calendar.monthrange(target_year, target_month)
         start_date = date(target_year, target_month, 1)
         end_date = date(target_year, target_month, last_day)
 
-        statement = select(func.sum(Transaction.amount)).where(
-            Transaction.entry_date >= start_date,
-            Transaction.entry_date <= end_date,
+        total_spent = (
+            session.exec(
+                select(func.sum(Transaction.amount)).where(
+                    Transaction.entry_date >= start_date,
+                    Transaction.entry_date <= end_date,
+                )
+            ).one()
+            or 0
         )
-        total_spent = session.exec(statement).one() or 0
+
+        if not budget:
+            views.render_warning(
+                f"\nNo budget found for {month_name} {target_year}.\n"
+                f"Use [bold]budy budget add[/bold] to set one first.\n"
+            )
 
         console.print(
-            views.render_budget_status(budget, total_spent, month_name, target_year)
+            views.render_budget_status(
+                budget=budget,
+                total_spent=total_spent,
+                month_name=month_name,
+                target_year=target_year,
+            )
         )

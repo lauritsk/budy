@@ -52,26 +52,27 @@ def show_yearly_report(
                 )
             ).first()
 
-            if not budget:
-                # Optional: You could render a "dimmed" placeholder panel here
-                continue
+            total_spent = 0
+            if budget:
+                _, last_day = calendar.monthrange(target_year, target_month)
+                start_date = date(target_year, target_month, 1)
+                end_date = date(target_year, target_month, last_day)
 
-            _, last_day = calendar.monthrange(target_year, target_month)
-            start_date = date(target_year, target_month, 1)
-            end_date = date(target_year, target_month, last_day)
-
-            total_spent = (
-                session.exec(
-                    select(func.sum(Transaction.amount)).where(
-                        Transaction.entry_date >= start_date,
-                        Transaction.entry_date <= end_date,
-                    )
-                ).one()
-                or 0
-            )
+                total_spent = (
+                    session.exec(
+                        select(func.sum(Transaction.amount)).where(
+                            Transaction.entry_date >= start_date,
+                            Transaction.entry_date <= end_date,
+                        )
+                    ).one()
+                    or 0
+                )
 
             month_panel = views.render_budget_status(
-                budget, total_spent, month_name, target_year
+                budget=budget,
+                total_spent=total_spent,
+                month_name=month_name,
+                target_year=target_year,
             )
             panels.append(month_panel)
 
@@ -81,5 +82,5 @@ def show_yearly_report(
             row_panels.append("")
         grid.add_row(*row_panels)
 
-    console.print(f"[bold underline]Yearly Overview: {target_year}[/]\n")
+    console.print(f"\n[bold underline]Yearly Overview: {target_year}[/]\n")
     console.print(grid)
