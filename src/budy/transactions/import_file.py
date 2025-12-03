@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
@@ -5,24 +6,31 @@ from rich.console import Console
 from sqlmodel import Session
 from typer import Exit, Option, Typer
 
+import budy.importers as importers
 from budy.database import engine
-from budy.importers import get_bank_importers
 from budy.views import render_error, render_success, render_warning
 
 app = Typer(no_args_is_help=True)
 console = Console()
 
 
+class Bank(str, Enum):
+    LHV = "LHV"
+    SEB = "SEB"
+    SWEDBANK = "Swedbank"
+
+
 @app.command(name="import")
 @app.command(name="i", hidden=True)
 def import_transactions(
     bank: Annotated[
-        str,
+        Bank,
         Option(
             "--bank",
             "-b",
-            prompt="Bank name",
-            help=f"The bank to import from. Options: {', '.join(get_bank_importers().keys())}",
+            prompt=True,
+            help="The bank to import from.",
+            case_sensitive=False,
         ),
     ],
     file_path: Annotated[
@@ -35,44 +43,40 @@ def import_transactions(
             dir_okay=False,
             readable=True,
             resolve_path=True,
-            prompt="Path to CSV file",
+            prompt=True,
             help="Path to the CSV file.",
         ),
     ],
     dry_run: Annotated[
         bool,
         Option(
-            "--dry-run",
             help="Parse the file but do not save to the database.",
         ),
     ] = False,
 ) -> None:
     """Import transactions from a bank CSV file."""
-    importers = get_bank_importers()
-    bank_key = bank.lower().strip()
-
-    if bank_key not in importers:
-        console.print(render_error(f"Unknown bank: '{bank}'"))
-        console.print(f"Available banks: [bold]{', '.join(importers.keys())}[/]")
-        raise Exit(code=1)
-
-    importer_cls = importers[bank_key]
-    importer = importer_cls()
+    if bank == Bank.LHV:
+        importer = importers.LHVImporter()
+    elif bank == Bank.SEB:
+        importer = importers.SEBImporter()
+    elif bank == Bank.SWEDBANK:
+        importer = importers.SwedbankImporter()
+    else:
+        console.print(render_error(f"No importer found for {bank}"))
+        raise Exit(1)
 
     console.print(
-        f"Parsing [bold]{file_path.name}[/] using [cyan]{importer_cls.__name__}[/]..."
+        f"Parsing [bold]{file_path.name}[/] using [cyan]{importer.__class__.__name__}[/]..."
     )
 
-    transactions, result = importer.process_file(file_path)
-
-    if not result.success:
-        console.print(render_error(result.message))
-        if result.error:
-            console.print(f"[dim]{result.error}[/]")
+    try:
+        transactions = importer.process_file(file_path)
+    except Exception as e:
+        console.print(render_error(str(e)))
         raise Exit(code=1)
 
     if not transactions:
-        console.print(render_warning(result.message))
+        console.print(render_warning(f"No valid expenses found in {file_path.name}."))
         return
 
     total_amount = sum(t.amount for t in transactions)
