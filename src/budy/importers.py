@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-import pandas as pd
+import polars as pl
 from sqlmodel import SQLModel
 
 from budy.models import Transaction
@@ -30,8 +30,9 @@ class BaseBankImporter(SQLModel):
     delimiter: str = ","
     encoding: str = "utf-8"
     decimal: str = "."
-    dayfirst: bool = False
+    date_fmt: str = "%Y-%m-%d"
 
+    # Column mapping
     date_col: str
     amount_col: str
     debit_credit_col: str
@@ -39,43 +40,72 @@ class BaseBankImporter(SQLModel):
 
     def process_file(self, file_path: Path) -> tuple[list[Transaction], ImportResult]:
         if not file_path.exists():
-            return [], ImportResult(success=False, message="File not found")
+            return [], ImportResult(
+                success=False, message=f"File not found: {file_path}"
+            )
 
         try:
-            # 1. READ & PARSE (Handling delimiters, decimals, and dates in one go)
-            df = pd.read_csv(
+            # 1. READ
+            # Polars handles decimal conversion natively via decimal_comma argument
+            df = pl.read_csv(
                 file_path,
-                sep=self.delimiter,
-                decimal=self.decimal,
+                separator=self.delimiter,
+                decimal_comma=(self.decimal == ","),
                 encoding=self.encoding,
-                parse_dates=[self.date_col],
-                dayfirst=self.dayfirst,  # True for European dates like 31.01.2023
             )
 
-            # 2. FILTER (Keep only Debits/Expenses)
-            # Normalize column to string/upper just in case
-            df[self.debit_credit_col] = (
-                df[self.debit_credit_col].astype(str).str.strip().str.upper()
-            )
-            df = df[df[self.debit_credit_col] == self.debit_value]
-
-            # 3. CLEAN UP
-            # Ensure amounts are positive (if they aren't already)
-            df[self.amount_col] = df[self.amount_col].abs()
-            # Drop rows with invalid dates or 0 amounts
-            df = df.dropna(subset=[self.date_col, self.amount_col])
-            df = df[df[self.amount_col] > 0]
-
-            # 4. CONVERT TO MODEL
-            transactions = []
-            for _, row in df.iterrows():
-                transactions.append(
-                    Transaction(
-                        entry_date=row[self.date_col].date(),
-                        # Convert float dollars to integer cents
-                        amount=int(round(row[self.amount_col] * 100)),
-                    )
+            # Check for required columns
+            required_cols = {self.date_col, self.amount_col, self.debit_credit_col}
+            if not required_cols.issubset(df.columns):
+                missing = required_cols - set(df.columns)
+                return [], ImportResult(
+                    success=False,
+                    message="CSV missing required columns.",
+                    error=f"Missing: {missing}",
                 )
+
+            # 2. FILTER & TRANSFORM (Lazy API)
+            q = (
+                df.lazy()
+                # Filter for Expenses (Debit)
+                .filter(
+                    pl.col(self.debit_credit_col).str.strip_chars().str.to_uppercase()
+                    == self.debit_value
+                )
+                # Parse Dates
+                .with_columns(
+                    pl.col(self.date_col)
+                    .str.strptime(pl.Date, format=self.date_fmt, strict=False)
+                    .alias("parsed_date")
+                )
+                # Parse Amounts: Absolute value -> Cents -> Integer
+                .with_columns(
+                    (pl.col(self.amount_col).abs() * 100)
+                    .round()
+                    .cast(pl.Int64)
+                    .alias("amount_cents")
+                )
+                # Drop rows where date parsing failed or amount is invalid
+                .drop_nulls(subset=["parsed_date", "amount_cents"])
+                .filter(pl.col("amount_cents") > 0)
+                .select(["parsed_date", "amount_cents"])
+            )
+
+            # Execute Query
+            result_df = q.collect()
+
+            if result_df.height == 0:
+                return [], ImportResult(
+                    success=True,
+                    count=0,
+                    message=f"No valid expenses found in {file_path.name}.",
+                )
+
+            # 3. CONVERT TO MODELS
+            transactions = [
+                Transaction(entry_date=row["parsed_date"], amount=row["amount_cents"])
+                for row in result_df.to_dicts()
+            ]
 
             return transactions, ImportResult(
                 success=True,
