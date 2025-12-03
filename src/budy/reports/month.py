@@ -69,4 +69,6 @@ def show_monthly_report(
         )
         total_spent = session.exec(statement).one() or 0
 
-        views.render_budget_status(budget, total_spent, month_name, target_year)
+        console.print(
+            views.render_budget_status(budget, total_spent, month_name, target_year)
+        )
