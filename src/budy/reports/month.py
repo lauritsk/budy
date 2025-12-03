@@ -3,6 +3,7 @@ from datetime import date
 from typing import Annotated, Optional
 
 from rich.console import Console
+from rich.table import Table
 from sqlmodel import Session, func, select
 from typer import Option, Typer
 
@@ -40,9 +41,9 @@ def show_monthly_report(
     ] = None,
 ) -> None:
     """Show the budget status report for a specific month."""
-    current_date = date.today()
-    target_month = month or current_date.month
-    target_year = year or current_date.year
+    today = date.today()
+    target_month = month or today.month
+    target_year = year or today.year
     month_name = calendar.month_name[target_month]
 
     with Session(engine) as session:
@@ -75,6 +76,7 @@ def show_monthly_report(
                 )
             )
 
+        # 1. Show the main budget panel
         console.print(
             render_budget_status(
                 budget=budget,
@@ -83,3 +85,30 @@ def show_monthly_report(
                 target_year=target_year,
             )
         )
+
+        # 2. Add Forecasting if we are looking at the current month
+        is_current_month = (target_month == today.month) and (target_year == today.year)
+
+        if is_current_month:
+            days_passed = today.day
+
+            # Avoid division by zero if running at 00:00 on the 1st (unlikely but safe)
+            if days_passed == 0:
+                days_passed = 1
+
+            avg_per_day = total_spent / days_passed
+            projected_total = avg_per_day * last_day
+
+            grid = Table.grid(padding=(0, 2))
+            grid.add_column(style="dim italic")
+            grid.add_column(justify="right")
+
+            grid.add_row("Daily Average:", f"${avg_per_day / 100:,.2f}")
+            grid.add_row("Projected Total:", f"[bold]${projected_total / 100:,.2f}[/]")
+
+            if budget and projected_total > budget.amount:
+                overage = projected_total - budget.amount
+                grid.add_row("Projected Overage:", f"[red]+${overage / 100:,.2f}[/]")
+
+            console.print("\n[bold underline]Forecast[/]")
+            console.print(grid)

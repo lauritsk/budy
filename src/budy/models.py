@@ -9,6 +9,8 @@ class Transaction(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     amount: int
     entry_date: date = Field(index=True)
+    receiver: str | None = Field(default=None, index=True)
+    description: str | None = Field(default=None)
 
 
 class Budget(SQLModel, table=True):
