@@ -2,8 +2,10 @@ from datetime import date
 from typing import Annotated
 
 from rich.console import Console
+from sqlmodel import Session
 from typer import Option, Typer
 
+from budy.database import engine
 from budy.services.budget import get_budgets
 from budy.views import render_budget_list, render_warning
 
@@ -35,12 +37,14 @@ def read_budgets(
     ] = 12,
 ) -> None:
     """Display monthly budgets in a table."""
-    budgets = get_budgets(
-        session=session,
-        target_year=target_year,
-        offset=offset,
-        limit=limit,
-    )
+    with Session(engine) as session:
+        budgets = get_budgets(
+            session=session,
+            target_year=target_year,
+            offset=offset,
+            limit=limit,
+        )
+
     if not budgets:
         console.print(render_warning(f"No budgets found for {target_year}."))
         return

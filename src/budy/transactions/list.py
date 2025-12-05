@@ -1,8 +1,10 @@
 from typing import Annotated
 
 from rich.console import Console
+from sqlmodel import Session
 from typer import Option, Typer
 
+from budy.database import engine
 from budy.services.transaction import get_transactions
 from budy.views import render_transaction_list, render_warning
 
@@ -30,7 +32,8 @@ def read_transactions(
     ] = 7,
 ) -> None:
     """Display transaction history in a table."""
-    transactions = get_transactions(session=session, offset=offset, limit=limit)
+    with Session(engine) as session:
+        transactions = get_transactions(session=session, offset=offset, limit=limit)
 
     if not transactions:
         console.print(render_warning("No transactions found for the selected dates."))

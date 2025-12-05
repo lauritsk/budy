@@ -2,9 +2,11 @@ from pathlib import Path
 from typing import Annotated
 
 from rich.console import Console
+from sqlmodel import Session
 from typer import Exit, Option, Typer
 
 from budy.constants import Bank
+from budy.database import engine
 from budy.services.transaction import import_transactions
 from budy.views import render_error, render_success, render_warning
 
@@ -70,12 +72,13 @@ def run_import(
     )
 
     try:
-        transactions = import_transactions(
-            session=session,
-            bank=bank,
-            file_path=file_path,
-            dry_run=dry_run,
-        )
+        with Session(engine) as session:
+            transactions = import_transactions(
+                session=session,
+                bank=bank,
+                file_path=file_path,
+                dry_run=dry_run,
+            )
     except ValueError as e:
         console.print(render_error(str(e)))
         raise Exit(1)
