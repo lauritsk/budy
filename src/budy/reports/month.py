@@ -2,9 +2,11 @@ from datetime import date
 from typing import Annotated, Optional
 
 from rich.console import Console
+from sqlmodel import Session
 from typer import Option, Typer
 
 from budy.constants import MAX_YEAR, MIN_YEAR
+from budy.database import engine
 from budy.services.report import generate_monthly_report_data
 from budy.views import render_budget_status, render_warning
 
@@ -21,7 +23,7 @@ def show_monthly_report(
             "-m",
             min=1,
             max=12,
-            help="The month to report on (defaults to current).",
+            help="Target month.",
         ),
     ] = None,
     year: Annotated[
@@ -31,7 +33,7 @@ def show_monthly_report(
             "-y",
             min=MIN_YEAR,
             max=MAX_YEAR,
-            help="The year to report on (defaults to current).",
+            help="Target year.",
         ),
     ] = None,
 ) -> None:
@@ -40,27 +42,25 @@ def show_monthly_report(
     target_month = month or today.month
     target_year = year or today.year
 
-    report_data = generate_monthly_report_data(
-        target_month=target_month, target_year=target_year
-    )
+    with Session(engine) as session:
+        data = generate_monthly_report_data(session, target_month, target_year)
 
-    if not report_data["budget"]:
+    if not data["budget"]:
         console.print(
             render_warning(
-                f"No budget found for {report_data['month_name']} {report_data['target_year']}.\n"
-                f"Use [bold]budy budget add[/bold] to set one first."
+                f"No budget found for {data['month_name']} {data['target_year']}.\n"
+                f"Use [bold]budy budgets add[/bold] to set one first."
             )
         )
         return
 
-    # 1. Show the main budget panel
     console.print(
         render_budget_status(
-            budget=report_data["budget"],
-            total_spent=report_data["total_spent"],
-            month_name=report_data["month_name"],
-            target_year=report_data["target_year"],
-            forecast_data=report_data["forecast"],
+            budget=data["budget"],
+            total_spent=data["total_spent"],
+            month_name=data["month_name"],
+            target_year=data["target_year"],
+            forecast_data=data["forecast"],
         )
     )
 

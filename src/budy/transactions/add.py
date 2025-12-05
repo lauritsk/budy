@@ -2,8 +2,10 @@ from datetime import date, datetime
 from typing import Annotated, Optional
 
 from rich.console import Console
+from sqlmodel import Session
 from typer import Option, Typer
 
+from budy.database import engine
 from budy.services.transaction import create_transaction
 from budy.views import render_success
 
@@ -24,7 +26,7 @@ def add_transaction(
             help="Set the transaction amount (in dollars/euros).",
         ),
     ],
-    entry_date: Annotated[
+    txn_date: Annotated[
         Optional[datetime],
         Option(
             "--date",
@@ -36,11 +38,13 @@ def add_transaction(
 ) -> None:
     """Add a new transaction to the database."""
     final_date = txn_date.date() if txn_date else date.today()
-    transaction = create_transaction(
-        session=session,
-        amount=amount,
-        entry_date=final_date,
-    )
+
+    with Session(engine) as session:
+        transaction = create_transaction(
+            session=session,
+            amount=amount,
+            entry_date=final_date,
+        )
 
     console.print(render_success(f"Added! Transaction [bold]#{transaction.id}[/]"))
 

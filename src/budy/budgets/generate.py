@@ -4,9 +4,11 @@ from typing import Annotated, Optional
 from rich.console import Console
 from rich.prompt import Confirm
 from rich.table import Table
+from sqlmodel import Session
 from typer import Option, Typer
 
 from budy.constants import MAX_YEAR, MIN_YEAR
+from budy.database import engine
 from budy.services.budget import (
     generate_budgets_suggestions,
     save_budget_suggestions,
@@ -75,9 +77,10 @@ def generate_budgets(
         f"Analyzing spending history to generate budgets for [bold]{target_year}[/]..."
     )
 
-    suggestions = generate_budgets_suggestions(
-        session=session, target_year=target_year, force=force
-    )
+    with Session(engine) as session:
+        suggestions = generate_budgets_suggestions(
+            session=session, target_year=target_year, force=force
+        )
 
     if not suggestions:
         console.print(render_warning(f"No suggestions found for {target_year}."))

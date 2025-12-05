@@ -2,9 +2,11 @@ from datetime import date
 from typing import Annotated, Optional
 
 from rich.console import Console
+from sqlmodel import Session
 from typer import Exit, Option, Typer, confirm
 
 from budy.constants import MAX_YEAR, MIN_YEAR
+from budy.database import engine
 from budy.services.budget import add_or_update_budget
 from budy.views import render_warning
 
@@ -76,15 +78,16 @@ def create_budget(
     """Add a new budget to the database."""
     today = date.today()
 
-    result = add_or_update_budget(
-        session=session,
-        target_amount=amount,
-        target_month=month or today.month,
-        target_year=year or today.year,
-        confirmation_callback=confirm_overwrite,
-    )
+    with Session(engine) as session:
+        budget = add_or_update_budget(
+            session=session,
+            target_amount=amount,
+            target_month=month or today.month,
+            target_year=year or today.year,
+            confirmation_callback=confirm_overwrite,
+        )
 
-    display_result(result)
+    display_result(budget)
 
 
 if __name__ == "__main__":

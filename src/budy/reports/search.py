@@ -2,8 +2,10 @@ from typing import Annotated
 
 from rich.console import Console
 from rich.table import Table
+from sqlmodel import Session
 from typer import Argument, Option, Typer
 
+from budy.database import engine
 from budy.services.transaction import search_transactions
 from budy.views import render_warning
 
@@ -27,24 +29,20 @@ def run_search(
         ),
     ] = 20,
 ) -> None:
-    """
-    Search transactions by keyword.
-    Looks inside the Receiver name and Description.
-    """
-    results = search_transactions(query=query, limit=limit)
+    """Search transactions by keyword in receiver or description."""
+    with Session(engine) as session:
+        results = search_transactions(session, query, limit)
 
     if not results:
         console.print(render_warning(f"No transactions found matching '{query}'."))
         return
 
+    display_results = results[::-1]
+    total_cents = sum(t.amount for t in display_results)
+
     title = f"Search Results: '{query}'"
     if len(results) == limit:
         title += f" (Showing latest {limit})"
-
-    display_results = list(results)
-    display_results.reverse()
-
-    total_cents = sum(t.amount for t in display_results)
 
     table = Table(title=title, show_footer=True)
     table.add_column("Date", style="cyan")
@@ -58,16 +56,14 @@ def run_search(
     )
 
     for t in display_results:
-        receiver = t.receiver if t.receiver else "[dim]-[/]"
-        desc_text = t.description if t.description else ""
-
-        if len(desc_text) > 30:
-            desc_text = desc_text[:27] + "..."
+        desc = t.description or ""
+        if len(desc) > 30:
+            desc = f"{desc[:27]}..."
 
         table.add_row(
             t.entry_date.strftime("%b %d, %Y"),
-            receiver,
-            desc_text,
+            t.receiver or "[dim]-[/]",
+            desc,
             f"${t.amount / 100:,.2f}",
         )
 

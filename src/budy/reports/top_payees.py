@@ -1,9 +1,11 @@
 from typing import Annotated, Optional
 
 from rich.console import Console
+from sqlmodel import Session
 from typer import Option, Typer
 
 from budy.constants import MAX_YEAR, MIN_YEAR
+from budy.database import engine
 from budy.services.report import get_top_payees
 from budy.views import render_payee_ranking, render_warning
 
@@ -20,7 +22,7 @@ def show_top_payees(
             "-y",
             min=MIN_YEAR,
             max=MAX_YEAR,
-            help="Filter analysis by year (defaults to all time).",
+            help="Target year.",
         ),
     ] = None,
     limit: Annotated[
@@ -40,11 +42,9 @@ def show_top_payees(
         ),
     ] = False,
 ) -> None:
-    """
-    Rank payees by total spending or frequency.
-    Who is getting most of your money?
-    """
-    top_payees = get_top_payees(year=year, limit=limit, by_count=by_count)
+    """Rank payees by total spending or frequency."""
+    with Session(engine) as session:
+        top_payees = get_top_payees(session, year, limit, by_count)
 
     if not top_payees:
         console.print(render_warning("No transactions found."))
