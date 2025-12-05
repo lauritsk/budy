@@ -14,7 +14,7 @@ console = Console()
 def show_weekday_report() -> None:
     """Analyze spending habits by day of the week."""
     with Session(engine) as session:
-        report_data = get_weekday_report_data(session)
+        report_data = get_weekday_report_data(session=session)
 
     if not report_data:
         console.print(render_warning("No transactions found to analyze."))

@@ -31,7 +31,9 @@ def show_monthly_report(
     target_year = year or today.year
 
     with Session(engine) as session:
-        data = generate_monthly_report_data(session, target_month, target_year)
+        data = generate_monthly_report_data(
+            session=session, target_month=target_month, target_year=target_year
+        )
 
     if not data.budget:
         console.print(

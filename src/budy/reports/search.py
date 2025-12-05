@@ -30,7 +30,7 @@ def run_search(
 ) -> None:
     """Search transactions by keyword in receiver or description."""
     with Session(engine) as session:
-        results = search_transactions(session, query, limit)
+        results = search_transactions(session=session, query=query, limit=limit)
 
     if not results:
         console.print(render_warning(f"No transactions found matching '{query}'."))
