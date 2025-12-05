@@ -5,6 +5,7 @@ from rich.console import Console
 from typer import Option, Typer
 
 from budy.services.transaction import create_transaction
+from budy.views import render_success
 
 app = Typer(no_args_is_help=True)
 console = Console()
@@ -34,11 +35,16 @@ def add_transaction(
     ] = None,
 ) -> None:
     """Add a new transaction to the database."""
-    final_date = entry_date.date() if entry_date else date.today()
-    transaction = create_transaction(amount=amount, entry_date=final_date)
+    final_date = txn_date.date() if txn_date else date.today()
+    transaction = create_transaction(
+        session=session,
+        amount=amount,
+        entry_date=final_date,
+    )
+
+    console.print(render_success(f"Added! Transaction [bold]#{transaction.id}[/]"))
 
     console.print(
-        f"[green]✓ Added![/] Transaction [bold]#{transaction.id}[/]: "
         f"[bold]${transaction.amount / 100:,.2f}[/bold] on {transaction.entry_date.strftime('%B %d, %Y')}"
     )
 

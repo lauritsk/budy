@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Annotated, Optional
 
 from rich.console import Console
@@ -16,6 +17,25 @@ app = Typer(no_args_is_help=True)
 console = Console()
 
 
+def display_preview_table(suggestions: list, year: int) -> None:
+    """Renders the comparison table of current vs suggested budgets."""
+    table = Table(title=f"Suggested Budgets ({year})")
+    table.add_column("Month", style="cyan")
+    table.add_column("Current", justify="right", style="dim")
+    table.add_column("Suggested", justify="right", style="green")
+
+    for item in suggestions:
+        current_str = "-"
+        if item.get("existing"):
+            current_str = f"${item['existing'].amount / 100:,.2f}"
+
+        suggested_str = f"${item['amount'] / 100:,.2f}"
+
+        table.add_row(item["month_name"], current_str, suggested_str)
+
+    console.print(table)
+
+
 @app.command(name="generate")
 def generate_budgets(
     year: Annotated[
@@ -25,7 +45,7 @@ def generate_budgets(
             "-y",
             min=MIN_YEAR,
             max=MAX_YEAR,
-            help="The year to generate budgets for.",
+            help="Target year.",
         ),
     ] = None,
     force: Annotated[
@@ -36,11 +56,11 @@ def generate_budgets(
             help="Overwrite existing budgets without asking.",
         ),
     ] = False,
-    yes: Annotated[
+    auto_approve: Annotated[
         bool,
         Option(
             "--yes",
-            help="Automatically confirm saving suggestions.",
+            help="Skip confirmation prompt.",
         ),
     ] = False,
 ) -> None:
@@ -48,7 +68,6 @@ def generate_budgets(
     Auto-generate monthly budgets based on historical transaction data.
     Calculates suggestions using recent spending trends and seasonal history.
     """
-    from datetime import date
 
     target_year = year or date.today().year
 
@@ -56,37 +75,24 @@ def generate_budgets(
         f"Analyzing spending history to generate budgets for [bold]{target_year}[/]..."
     )
 
-    suggestions = generate_budgets_suggestions(target_year, force)
+    suggestions = generate_budgets_suggestions(
+        session=session, target_year=target_year, force=force
+    )
 
     if not suggestions:
-        console.print(
-            render_warning(
-                f"No suggestions could be calculated for {target_year} (or budgets already exist)."
-            )
-        )
+        console.print(render_warning(f"No suggestions found for {target_year}."))
         return
-
-    # Preview Table
-    table = Table(title=f"Suggested Budgets ({target_year})")
-    table.add_column("Month", style="cyan")
-    table.add_column("Current", justify="right", style="dim")
-    table.add_column("Suggested", justify="right", style="green")
 
     for item in suggestions:
         item["year"] = target_year
-        current_str = "-"
-        if item["existing"]:
-            current_str = f"${item['existing'].amount / 100:,.2f}"
 
-        table.add_row(item["month_name"], current_str, f"${item['amount'] / 100:,.2f}")
+    display_preview_table(suggestions, target_year)
 
-    console.print(table)
-
-    if not yes and not Confirm.ask("Save these budgets?"):
+    if not auto_approve and not Confirm.ask("Save these budgets?"):
         console.print("[dim]Operation cancelled.[/]")
         return
 
-    count = save_budget_suggestions(suggestions)
+    count = save_budget_suggestions(session=session, suggestions=suggestions)
     console.print(render_success(f"Successfully saved {count} budgets."))
 
 

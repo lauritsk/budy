@@ -30,11 +30,13 @@ def read_transactions(
     ] = 7,
 ) -> None:
     """Display transaction history in a table."""
-    display_data = get_transactions(offset=offset, limit=limit)
-    if not display_data:
+    transactions = get_transactions(session=session, offset=offset, limit=limit)
+
+    if not transactions:
         console.print(render_warning("No transactions found for the selected dates."))
         return
-    console.print(render_transaction_list(display_data))
+
+    console.print(render_transaction_list(transactions))
 
 
 if __name__ == "__main__":

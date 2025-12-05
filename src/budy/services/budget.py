@@ -15,7 +15,7 @@ def get_budgets(
     offset: int,
     limit: int,
 ) -> list[tuple[int, Budget | None]]:
-    """Fetches budgets for a given year, with pagination."""
+    """Fetches budgets for a given year with optional pagination."""
     budgets = list(
         session.exec(
             select(Budget)
