@@ -8,6 +8,7 @@ from budy.views.messages import render_success, render_warning
 
 
 def render_transaction_list(
+    *,
     daily_transactions: list[tuple[date, list[Transaction]]],
 ) -> Table:
     """Renders a table of transactions grouped by date."""
@@ -53,7 +54,7 @@ def render_transaction_list(
 
 
 def render_simple_transaction_list(
-    transactions: list[Transaction], title: str = "Transactions"
+    *, transactions: list[Transaction], title: str = "Transactions"
 ) -> Table:
     """Renders a simple flat list of transactions (e.g. for outliers)."""
     table = Table(title=title, show_footer=False)
@@ -80,11 +81,11 @@ def render_simple_transaction_list(
 
 
 def render_import_summary(
-    transactions: list[Transaction], filename: str, dry_run: bool
+    *, transactions: list[Transaction], filename: str, dry_run: bool
 ) -> Group | str:
     """Renders the post-import summary message."""
     if not transactions:
-        return render_warning(f"No valid expenses found in {filename}.")
+        return render_warning(message=f"No valid expenses found in {filename}.")
 
     count = len(transactions)
     total_display = sum(t.amount for t in transactions) / 100.0
@@ -94,6 +95,8 @@ def render_import_summary(
     if dry_run:
         status_text = "[yellow]Dry run active. No changes made to database.[/]"
     else:
-        status_text = render_success(f"Successfully imported {count} transactions!")
+        status_text = render_success(
+            message=f"Successfully imported {count} transactions!"
+        )
 
     return Group(summary_text, status_text)
