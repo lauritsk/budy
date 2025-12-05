@@ -1,4 +1,11 @@
-from .base_importer import BaseBankImporter as BaseBankImporter
-from .lhv import LHVImporter as LHVImporter
-from .seb import SEBImporter as SEBImporter
-from .swedbank import SwedbankImporter as SwedbankImporter
+from .base_importer import BaseBankImporter
+from .lhv import LHVImporter
+from .seb import SEBImporter
+from .swedbank import SwedbankImporter
+
+__all__ = [
+    "BaseBankImporter",
+    "LHVImporter",
+    "SEBImporter",
+    "SwedbankImporter",
+]
