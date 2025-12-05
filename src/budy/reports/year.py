@@ -31,7 +31,7 @@ def show_yearly_report(
     target_year = year or date.today().year
 
     with Session(engine) as session:
-        monthly_reports = get_yearly_report_data(session, target_year)
+        monthly_reports = get_yearly_report_data(session=session, year=target_year)
 
     console.print(f"\n[bold underline]Yearly Overview: {target_year}[/]\n")
     console.print(render_yearly_report(monthly_reports, target_year))

@@ -28,7 +28,7 @@ def show_volatility_report(
 ) -> None:
     """Analyze spending volatility and outliers."""
     with Session(engine) as session:
-        data = get_volatility_report_data(session, year)
+        data = get_volatility_report_data(session=session, year=year)
 
     if not data:
         console.print(render_warning("No transactions found."))

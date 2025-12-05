@@ -44,7 +44,7 @@ def show_top_payees(
 ) -> None:
     """Rank payees by total spending or frequency."""
     with Session(engine) as session:
-        top_payees = get_top_payees(session, year, limit, by_count)
+        top_payees = get_top_payees(session=session, year=year, limit=limit, by_count=by_count)
 
     if not top_payees:
         console.print(render_warning("No transactions found."))
