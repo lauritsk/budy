@@ -1,11 +1,12 @@
 import calendar
 from collections import defaultdict
 from datetime import date
-from statistics import mean, median
+from statistics import mean
 from typing import Optional
 
 from sqlmodel import Session, asc, select
 
+from budy.constants import MIN_YEAR
 from budy.dtos import BudgetSuggestion
 from budy.models import Budget, Transaction
 
@@ -144,48 +145,54 @@ def suggest_budget_amount(
     target_year: int,
 ) -> int:
     """Calculates a suggested budget amount (in cents) based on historical data."""
-    target_date = date(target_year, target_month, 1)
+    from sklearn.compose import ColumnTransformer
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import OneHotEncoder
 
-    # 1. Recent Trend: Look back ~6 months
-    y, m = target_year, target_month
-    for _ in range(6):
-        m -= 1
-        if m < 1:
-            m = 12
-            y -= 1
-    trend_start = date(y, m, 1)
+    start_date = date(MIN_YEAR, 1, 1)
+    end_date = date(target_year, target_month, 1)  # Up to now
 
-    recent_data = get_monthly_totals(
-        session=session, start_date=trend_start, end_date=target_date
+    historical_data = get_monthly_totals(
+        session=session, start_date=start_date, end_date=end_date
     )
-    recent_values = list(recent_data.values())
 
-    # 2. Seasonality: Look at this exact month in the last 3 years
-    history_values = []
-    for i in range(1, 4):
-        prev_year = target_year - i
-        m_start = date(prev_year, target_month, 1)
-        next_m = target_month + 1
-        next_y = prev_year
-        if next_m > 12:
-            next_m = 1
-            next_y += 1
-        m_end = date(next_y, next_m, 1)
+    if len(historical_data) < 6:
+        # Fallback for insufficient data: return simple average or 0
+        return int(mean(historical_data.values())) if historical_data else 0
 
-        totals = get_monthly_totals(session=session, start_date=m_start, end_date=m_end)
-        if totals:
-            history_values.extend(totals.values())
+    # 2. Prepare Training Data (X = [Month, Year], y = Amount)
+    X_train = []
+    y_train = []
 
-    signals = []
-    if recent_values:
-        signals.append(median(recent_values))
-    if history_values:
-        signals.append(median(history_values))
+    for (year, month), amount in historical_data.items():
+        X_train.append([month, year])
+        y_train.append(amount)
 
-    if not signals:
-        return 0
+    # 3. Build & Train Pipeline
+    # We one-hot encode 'Month' so the model understands "December" distinct from "January"
+    # independent of the numerical value (1 vs 12).
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("cat", OneHotEncoder(handle_unknown="ignore"), [0]),  # Month column
+            ("num", "passthrough", [1]),  # Year column
+        ]
+    )
 
-    return int(mean(signals))
+    model = Pipeline(
+        [
+            ("preprocessor", preprocessor),
+            ("regressor", RandomForestRegressor(n_estimators=100, random_state=42)),
+        ]
+    )
+
+    model.fit(X_train, y_train)
+
+    # 4. Predict
+    # Input must match X_train shape: [[target_month, target_year]]
+    prediction = model.predict([[target_month, target_year]])
+
+    return int(prediction[0])
 
 
 def get_monthly_totals(

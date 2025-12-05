@@ -110,6 +110,9 @@ def get_volatility_report_data(
     *, session: Session, year: int | None
 ) -> Optional[VolatilityReportData]:
     """Calculates spending volatility and identifies outliers."""
+    import numpy as np
+    from sklearn.ensemble import IsolationForest
+
     query = select(Transaction)
     if year:
         query = query.where(
@@ -118,20 +121,37 @@ def get_volatility_report_data(
         )
 
     transactions = session.exec(query.order_by(desc(Transaction.amount))).all()
-    if not transactions:
+    if not transactions or len(transactions) < 10:
         return None
 
     amounts = [t.amount for t in transactions]
+    avg_amount = statistics.mean(amounts)
+
     try:
         stdev = statistics.stdev(amounts)
     except statistics.StatisticsError:
         stdev = 0
 
+    # ML: Anomaly Detection
+    # Reshape data for sklearn: [[amount1], [amount2], ...]
+    X = np.array(amounts).reshape(-1, 1)
+
+    # contamination='auto' lets the model decide the threshold
+    clf = IsolationForest(contamination=0.05, random_state=42)
+    preds = clf.fit_predict(X)
+
+    # IsolationForest returns -1 for anomalies, 1 for normal
+    # We filter transactions where preds == -1
+    outliers = [t for t, p in zip(transactions, preds) if p == -1]
+
+    # Sort outliers by amount descending for display
+    outliers.sort(key=lambda t: t.amount, reverse=True)
+
     return VolatilityReportData(
         total_count=len(amounts),
-        avg_amount=statistics.mean(amounts),
+        avg_amount=avg_amount,
         stdev_amount=stdev,
-        outliers=transactions[:5],
+        outliers=outliers[:5],  # Return top 5 detected anomalies
     )
 
 
