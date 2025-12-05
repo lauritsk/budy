@@ -13,7 +13,9 @@ from budy.views.budget import render_budget_status
 from budy.views.transaction import render_simple_transaction_list
 
 
-def render_yearly_report(monthly_reports: list[MonthlyReportData], year: int) -> Table:
+def render_yearly_report(
+    *, monthly_reports: list[MonthlyReportData], year: int
+) -> Table:
     """Renders a grid of budget status panels for the year."""
     grid = Table.grid(padding=1)
     grid.add_column()
@@ -38,7 +40,7 @@ def render_yearly_report(monthly_reports: list[MonthlyReportData], year: int) ->
     return grid
 
 
-def render_weekday_report(report_data: list[WeekdayReportItem]) -> Table:
+def render_weekday_report(*, report_data: list[WeekdayReportItem]) -> Table:
     """Renders the weekday spending analysis table."""
     total_spent = sum(d.total_amount for d in report_data)
     total_count = sum(d.count for d in report_data)
@@ -68,6 +70,7 @@ def render_weekday_report(report_data: list[WeekdayReportItem]) -> Table:
 
 
 def render_payee_ranking(
+    *,
     payees: list[PayeeRankingItem],
     title: str = "Top Payees",
 ) -> Table:
@@ -92,6 +95,7 @@ def render_payee_ranking(
 
 
 def render_search_results(
+    *,
     results: list[Transaction],
     query: str,
     limit: int,
@@ -130,7 +134,7 @@ def render_search_results(
     return table
 
 
-def render_volatility_report(data: VolatilityReportData, year: int | None) -> Group:
+def render_volatility_report(*, data: VolatilityReportData, year: int | None) -> Group:
     """Renders the volatility analysis panel and outliers list."""
     cv = (data.stdev_amount / data.avg_amount) if data.avg_amount else 0
 

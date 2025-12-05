@@ -9,7 +9,7 @@ from budy.models import Budget
 
 
 def render_budget_list(
-    budgets: list[tuple[int, Optional[Budget]]], target_year: int
+    *, budgets: list[tuple[int, Optional[Budget]]], target_year: int
 ) -> Table:
     """Renders a list of budgets for a specific year."""
     existing_budgets = [b for _, b in budgets if b]
@@ -42,7 +42,7 @@ def render_budget_list(
     return table
 
 
-def render_budget_preview(suggestions: list[BudgetSuggestion], year: int) -> Table:
+def render_budget_preview(*, suggestions: list[BudgetSuggestion], year: int) -> Table:
     """Renders the comparison table of current vs suggested budgets."""
     table = Table(title=f"Suggested Budgets ({year})")
     table.add_column("Month", style="cyan")
@@ -62,6 +62,7 @@ def render_budget_preview(suggestions: list[BudgetSuggestion], year: int) -> Tab
 
 
 def render_budget_status(
+    *,
     budget: Budget | None,
     total_spent: int,
     month_name: str,
