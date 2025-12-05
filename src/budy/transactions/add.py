@@ -46,7 +46,9 @@ def add_transaction(
             entry_date=final_date,
         )
 
-    console.print(render_success(f"Added! Transaction [bold]#{transaction.id}[/]"))
+    console.print(
+        render_success(message=f"Added! Transaction [bold]#{transaction.id}[/]")
+    )
 
     console.print(
         f"[bold]${transaction.amount / 100:,.2f}[/bold] on {transaction.entry_date.strftime('%B %d, %Y')}"

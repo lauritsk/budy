@@ -61,10 +61,12 @@ def generate_budgets(
         )
 
     if not suggestions:
-        console.print(render_warning(f"No suggestions found for {target_year}."))
+        console.print(
+            render_warning(message=f"No suggestions found for {target_year}.")
+        )
         return
 
-    console.print(render_budget_preview(suggestions, target_year))
+    console.print(render_budget_preview(suggestions=suggestions, year=target_year))
 
     if not auto_approve and not Confirm.ask("Save these budgets?"):
         console.print("[dim]Operation cancelled.[/]")
@@ -73,7 +75,7 @@ def generate_budgets(
     with Session(engine) as session:
         count = save_budget_suggestions(session=session, suggestions=suggestions)
 
-    console.print(render_success(f"Successfully saved {count} budgets."))
+    console.print(render_success(message=f"Successfully saved {count} budgets."))
 
 
 if __name__ == "__main__":

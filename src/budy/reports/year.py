@@ -34,4 +34,6 @@ def show_yearly_report(
         monthly_reports = get_yearly_report_data(session=session, year=target_year)
 
     console.print(f"\n[bold underline]Yearly Overview: {target_year}[/]\n")
-    console.print(render_yearly_report(monthly_reports, target_year))
+    console.print(
+        render_yearly_report(monthly_reports=monthly_reports, year=target_year)
+    )

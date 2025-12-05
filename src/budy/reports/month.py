@@ -38,7 +38,7 @@ def show_monthly_report(
     if not data.budget:
         console.print(
             render_warning(
-                f"No budget found for {data.month_name} {data.target_year}.\n"
+                message=f"No budget found for {data.month_name} {data.target_year}.\n"
                 f"Use [bold]budy budgets add[/bold] to set one first."
             )
         )

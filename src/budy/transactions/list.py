@@ -36,10 +36,12 @@ def read_transactions(
         transactions = get_transactions(session=session, offset=offset, limit=limit)
 
     if not transactions:
-        console.print(render_warning("No transactions found for the selected dates."))
+        console.print(
+            render_warning(message="No transactions found for the selected dates.")
+        )
         return
 
-    console.print(render_transaction_list(transactions))
+    console.print(render_transaction_list(daily_transactions=transactions))
 
 
 if __name__ == "__main__":
