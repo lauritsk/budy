@@ -35,11 +35,19 @@ def read_budgets(
     ] = 12,
 ) -> None:
     """Display monthly budgets in a table."""
-    display_data = get_budgets(target_year=target_year, offset=offset, limit=limit)
-    if not display_data:
-        console.print(render_warning(f"No months found for {target_year} in range."))
+    budgets = get_budgets(
+        session=session,
+        target_year=target_year,
+        offset=offset,
+        limit=limit,
+    )
+    if not budgets:
+        console.print(render_warning(f"No budgets found for {target_year}."))
         return
-    console.print(render_budget_list(display_data, target_year))
+    console.print(render_budget_list(budgets, target_year))
+
+    # TODO:
+    # indicate pagination visually so user knows if there is more hidden data
 
 
 if __name__ == "__main__":

@@ -12,9 +12,36 @@ app = Typer(no_args_is_help=True)
 console = Console()
 
 
+def confirm_overwrite(message: str) -> bool:
+    """Generic confirmation callback."""
+    console.print(render_warning(message))
+    return confirm("Overwrite?")
+
+
+def display_result(result: dict) -> None:
+    """Handles the visual output logic."""
+    if result["action"] == "cancelled":
+        console.print("[dim]Operation cancelled.[/]")
+        raise Exit(code=0)
+
+    new_amt = result["new_amount"] / 100.0
+    target = f"{result['month_name']} {result['year']}"
+
+    if result["action"] == "updated":
+        old_amt = result["old_amount"] / 100.0
+        console.print(
+            f"[green]✓ Updated![/] {target}: "
+            f"[strike dim]${old_amt:,.2f}[/] -> [bold green]${new_amt:,.2f}[/]"
+        )
+    else:
+        console.print(
+            f"[green]✓ Added![/] Budget for [bold]{target}[/] set to [green]${new_amt:,.2f}[/]"
+        )
+
+
 @app.command(name="add")
 def create_budget(
-    target_amount: Annotated[
+    amount: Annotated[
         float,
         Option(
             "--amount",
@@ -22,64 +49,42 @@ def create_budget(
             min=1,
             max=9999999,
             prompt=True,
-            help="Set the budget target amount.",
+            help="Target amount.",
         ),
     ],
-    target_month: Annotated[
+    month: Annotated[
         Optional[int],
         Option(
             "--month",
             "-m",
             min=1,
             max=12,
-            help="Set the budget target month.",
+            help="Target month.",
         ),
     ] = None,
-    target_year: Annotated[
+    year: Annotated[
         Optional[int],
         Option(
             "--year",
             "-y",
             min=MIN_YEAR,
             max=MAX_YEAR,
-            help="Set the budget target year.",
+            help="Target year.",
         ),
     ] = None,
 ) -> None:
     """Add a new budget to the database."""
-    current_date = date.today()
-    final_target_month = target_month if target_month else current_date.month
-    final_target_year = target_year if target_year else current_date.year
-
-    def confirmation_callback(message: str) -> bool:
-        console.print(render_warning(message))
-        return confirm("Overwrite?")
+    today = date.today()
 
     result = add_or_update_budget(
-        target_amount=target_amount,
-        target_month=final_target_month,
-        target_year=final_target_year,
-        confirmation_callback=confirmation_callback,
+        session=session,
+        target_amount=amount,
+        target_month=month or today.month,
+        target_year=year or today.year,
+        confirmation_callback=confirm_overwrite,
     )
 
-    if result["action"] == "cancelled":
-        console.print("[dim]Operation cancelled.[/]")
-        raise Exit(code=0)
-
-    month_name = result["month_name"]
-    year = result["year"]
-    new_amount_display = result["new_amount"] / 100.0
-
-    if result["action"] == "updated":
-        old_amount_display = result["old_amount"] / 100.0
-        console.print(
-            f"[green]✓ Updated![/] {month_name} {year}: "
-            f"[strike dim]${old_amount_display:,.2f}[/] -> [bold green]${new_amount_display:,.2f}[/]"
-        )
-    elif result["action"] == "created":
-        console.print(
-            f"[green]✓ Added![/] Budget for [bold]{month_name} {year}[/] set to [green]${new_amount_display:,.2f}[/]"
-        )
+    display_result(result)
 
 
 if __name__ == "__main__":

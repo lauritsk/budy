@@ -1,10 +1,10 @@
-from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
 from rich.console import Console
 from typer import Exit, Option, Typer
 
+from budy.constants import Bank
 from budy.services.transaction import import_transactions
 from budy.views import render_error, render_success, render_warning
 
@@ -12,10 +12,23 @@ app = Typer(no_args_is_help=True)
 console = Console()
 
 
-class Bank(str, Enum):
-    LHV = "LHV"
-    SEB = "SEB"
-    SWEDBANK = "Swedbank"
+def display_summary(transactions: list, filename: str, dry_run: bool) -> None:
+    """Handles the post-import reporting logic."""
+    if not transactions:
+        console.print(render_warning(f"No valid expenses found in {filename}."))
+        return
+
+    count = len(transactions)
+    total_display = sum(t.amount for t in transactions) / 100.0
+
+    console.print(
+        f"\nFound [bold]{count}[/] transactions totaling [green]${total_display:,.2f}[/]."
+    )
+
+    if dry_run:
+        console.print("[yellow]Dry run active. No changes made to database.[/]")
+    else:
+        console.print(render_success(f"Successfully imported {count} transactions!"))
 
 
 @app.command(name="import")
@@ -57,33 +70,20 @@ def run_import(
     )
 
     try:
-        result = import_transactions(
-            bank=bank.value, file_path=file_path, dry_run=dry_run
+        transactions = import_transactions(
+            session=session,
+            bank=bank,
+            file_path=file_path,
+            dry_run=dry_run,
         )
     except ValueError as e:
         console.print(render_error(str(e)))
         raise Exit(1)
     except Exception as e:
-        console.print(render_error(f"An unexpected error occurred: {e}"))
+        console.print(render_error(f"Unexpected error: {e}"))
         raise Exit(1)
 
-    transactions = result["transactions"]
-    count = result["count"]
-
-    if not transactions:
-        console.print(render_warning(f"No valid expenses found in {file_path.name}."))
-        return
-
-    total_amount = sum(t.amount for t in transactions)
-    console.print(
-        f"\nFound [bold]{count}[/] transactions totaling [green]${total_amount / 100:,.2f}[/]."
-    )
-
-    if dry_run:
-        console.print("[yellow]Dry run active. No changes made to database.[/]")
-        return
-
-    console.print(render_success(f"Successfully imported {count} transactions!"))
+    display_summary(transactions, file_path.name, dry_run)
 
 
 if __name__ == "__main__":
