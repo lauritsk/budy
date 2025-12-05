@@ -17,7 +17,7 @@ def show_weekday_report() -> None:
         report_data = get_weekday_report_data(session=session)
 
     if not report_data:
-        console.print(render_warning("No transactions found to analyze."))
+        console.print(render_warning(message="No transactions found to analyze."))
         return
 
-    console.print(render_weekday_report(report_data))
+    console.print(render_weekday_report(report_data=report_data))

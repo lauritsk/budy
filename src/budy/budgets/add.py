@@ -54,12 +54,14 @@ def create_budget(
     target_year = year or today.year
 
     with Session(engine) as session:
-        existing = get_budget(session=session, target_month=target_month, target_year=target_year)
+        existing = get_budget(
+            session=session, target_month=target_month, target_year=target_year
+        )
 
         if existing:
             console.print(
                 render_warning(
-                    f"Budget for {target_month}/{target_year} already exists."
+                    message=f"Budget for {target_month}/{target_year} already exists."
                 )
             )
             if not confirm("Overwrite?"):

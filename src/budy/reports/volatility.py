@@ -31,7 +31,7 @@ def show_volatility_report(
         data = get_volatility_report_data(session=session, year=year)
 
     if not data:
-        console.print(render_warning("No transactions found."))
+        console.print(render_warning(message="No transactions found."))
         return
 
-    console.print(render_volatility_report(data, year))
+    console.print(render_volatility_report(data=data, year=year))

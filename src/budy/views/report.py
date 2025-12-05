@@ -160,7 +160,7 @@ def render_volatility_report(*, data: VolatilityReportData, year: int | None) ->
     )
 
     outliers_table = render_simple_transaction_list(
-        data.outliers, title="Top 5 Highest Transactions"
+        transactions=data.outliers, title="Top 5 Highest Transactions"
     )
 
     return Group(panel, "", outliers_table)

@@ -46,9 +46,9 @@ def read_budgets(
         )
 
     if not budgets:
-        console.print(render_warning(f"No budgets found for {target_year}."))
+        console.print(render_warning(message=f"No budgets found for {target_year}."))
         return
-    console.print(render_budget_list(budgets, target_year))
+    console.print(render_budget_list(budgets=budgets, target_year=target_year))
 
     # TODO:
     # indicate pagination visually so user knows if there is more hidden data

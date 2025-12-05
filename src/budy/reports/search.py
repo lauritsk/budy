@@ -33,7 +33,9 @@ def run_search(
         results = search_transactions(session=session, query=query, limit=limit)
 
     if not results:
-        console.print(render_warning(f"No transactions found matching '{query}'."))
+        console.print(
+            render_warning(message=f"No transactions found matching '{query}'.")
+        )
         return
 
-    console.print(render_search_results(results, query, limit))
+    console.print(render_search_results(results=results, query=query, limit=limit))

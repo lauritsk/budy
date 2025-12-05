@@ -61,13 +61,17 @@ def run_import(
                 dry_run=dry_run,
             )
     except ValueError as e:
-        console.print(render_error(str(e)))
+        console.print(render_error(message=str(e)))
         raise Exit(1)
     except Exception as e:
-        console.print(render_error(f"Unexpected error: {e}"))
+        console.print(render_error(message=f"Unexpected error: {e}"))
         raise Exit(1)
 
-    console.print(render_import_summary(transactions, file_path.name, dry_run))
+    console.print(
+        render_import_summary(
+            transactions=transactions, filename=file_path.name, dry_run=dry_run
+        )
+    )
 
 
 if __name__ == "__main__":
