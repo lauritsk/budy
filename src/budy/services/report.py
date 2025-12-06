@@ -5,7 +5,7 @@ from datetime import date
 from statistics import mean
 from typing import Optional
 
-from sqlmodel import Session, col, desc, func, or_, select
+from sqlmodel import Session, desc, select
 
 from budy.config import settings
 from budy.schemas import (
@@ -17,6 +17,69 @@ from budy.schemas import (
     VolatilityReportData,
     WeekdayReportItem,
 )
+
+
+def _get_name_variants(name: str) -> set[str]:
+    """Generates variants of a name (lowercase, initials, mixed forms)."""
+    clean_name = name.strip().lower()
+    parts = clean_name.split()
+
+    if not parts:
+        return {clean_name}
+
+    variants = {clean_name}
+
+    # 1. All Initials (e.g. "khl", "k.h.l.", "k. h. l.")
+    initials_chars = [p[0] for p in parts]
+    variants.add("".join(initials_chars))
+    variants.add(".".join(initials_chars) + ".")
+    variants.add(". ".join(initials_chars) + ".")
+
+    if len(parts) > 1:
+        last_name = parts[-1]
+        first_names = parts[:-1]
+        first_initials_chars = [p[0] for p in first_names]
+
+        # 2. First name initial + Last name full (e.g. "k laurits", "k. laurits")
+        first_initial = first_names[0][0]
+        variants.add(f"{first_initial} {last_name}")
+        variants.add(f"{first_initial}. {last_name}")
+        variants.add(f"{first_initial}.{last_name}")
+
+        # 3. All first names initialed + Last name full (e.g. "k. h. laurits")
+        if len(first_names) > 1:
+            # "kh laurits"
+            variants.add(f"{''.join(first_initials_chars)} {last_name}")
+            # "k. h. laurits"
+            dotted_spaced = ". ".join(first_initials_chars) + "."
+            variants.add(f"{dotted_spaced} {last_name}")
+            # "k.h. laurits"
+            dotted_tight = ".".join(first_initials_chars) + "."
+            variants.add(f"{dotted_tight} {last_name}")
+
+    return variants
+
+
+def _is_user(receiver: str | None) -> bool:
+    """Checks if the receiver matches the configured user (fuzzy match)."""
+    if not receiver:
+        return False
+
+    if not settings.first_name or not settings.last_name:
+        return False
+
+    receiver_clean = receiver.strip().lower()
+    full_name = f"{settings.first_name} {settings.last_name}"
+
+    user_variants = _get_name_variants(full_name)
+    if receiver_clean in user_variants:
+        return True
+
+    receiver_variants = _get_name_variants(receiver)
+    if full_name.lower() in receiver_variants:
+        return True
+
+    return False
 
 
 def generate_monthly_report_data(
@@ -39,20 +102,16 @@ def generate_monthly_report_data(
         )
     ).first()
 
-    query = select(func.sum(Transaction.amount)).where(
-        Transaction.entry_date >= start_date,
-        Transaction.entry_date <= end_date,
-    )
-
-    if settings.name:
-        query = query.where(
-            or_(
-                col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.name,
-            )
+    transactions = session.exec(
+        select(Transaction).where(
+            Transaction.entry_date >= start_date,
+            Transaction.entry_date <= end_date,
         )
+    ).all()
 
-    total_spent = session.scalar(query) or 0
+    relevant_transactions = [t for t in transactions if not _is_user(t.receiver)]
+
+    total_spent = sum(t.amount for t in relevant_transactions)
 
     forecast = None
     is_current_month = (target_month == today.month) and (target_year == today.year)
@@ -92,20 +151,14 @@ def get_top_payees(
             Transaction.entry_date <= date(year, 12, 31),
         )
 
-    if settings.name:
-        query = query.where(
-            or_(
-                col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.name,
-            )
-        )
-
     transactions = session.exec(query).all()
     if not transactions:
         return []
 
+    filtered_transactions = [t for t in transactions if not _is_user(t.receiver)]
+
     grouped = defaultdict(list)
-    for t in transactions:
+    for t in filtered_transactions:
         name = (t.receiver or "Unknown").strip() or "Unknown"
         grouped[name].append(t.amount)
 
@@ -135,15 +188,10 @@ def get_volatility_report_data(
             Transaction.entry_date <= date(year, 12, 31),
         )
 
-    if settings.name:
-        query = query.where(
-            or_(
-                col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.name,
-            )
-        )
-
     transactions = session.exec(query.order_by(desc(Transaction.amount))).all()
+
+    transactions = [t for t in transactions if not _is_user(t.receiver)]
+
     if not transactions or len(transactions) < 10:
         return None
 
@@ -155,42 +203,28 @@ def get_volatility_report_data(
     except statistics.StatisticsError:
         stdev = 0
 
-    # ML: Anomaly Detection
-    # Reshape data for sklearn: [[amount1], [amount2], ...]
     X = np.array(amounts).reshape(-1, 1)
 
-    # contamination='auto' lets the model decide the threshold
     clf = IsolationForest(contamination=0.05, random_state=42)
     preds = clf.fit_predict(X)
 
-    # IsolationForest returns -1 for anomalies, 1 for normal
-    # We filter transactions where preds == -1
     outliers = [t for t, p in zip(transactions, preds) if p == -1]
-
-    # Sort outliers by amount descending for display
     outliers.sort(key=lambda t: t.amount, reverse=True)
 
     return VolatilityReportData(
         total_count=len(amounts),
         avg_amount=avg_amount,
         stdev_amount=stdev,
-        outliers=outliers[:5],  # Return top 5 detected anomalies
+        outliers=outliers[:5],
     )
 
 
 def get_weekday_report_data(*, session: Session) -> list[WeekdayReportItem]:
     """Analyzes spending habits by day of the week."""
-    query = select(Transaction)
+    transactions = session.exec(select(Transaction)).all()
 
-    if settings.name:
-        query = query.where(
-            or_(
-                col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.name,
-            )
-        )
+    transactions = [t for t in transactions if not _is_user(t.receiver)]
 
-    transactions = session.exec(query).all()
     if not transactions:
         return []
 
