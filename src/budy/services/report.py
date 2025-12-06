@@ -44,11 +44,11 @@ def generate_monthly_report_data(
         Transaction.entry_date <= end_date,
     )
 
-    if settings.username:
+    if settings.name:
         query = query.where(
             or_(
                 col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.username,
+                col(Transaction.receiver) != settings.name,
             )
         )
 
@@ -92,11 +92,11 @@ def get_top_payees(
             Transaction.entry_date <= date(year, 12, 31),
         )
 
-    if settings.username:
+    if settings.name:
         query = query.where(
             or_(
                 col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.username,
+                col(Transaction.receiver) != settings.name,
             )
         )
 
@@ -135,11 +135,11 @@ def get_volatility_report_data(
             Transaction.entry_date <= date(year, 12, 31),
         )
 
-    if settings.username:
+    if settings.name:
         query = query.where(
             or_(
                 col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.username,
+                col(Transaction.receiver) != settings.name,
             )
         )
 
@@ -182,11 +182,11 @@ def get_weekday_report_data(*, session: Session) -> list[WeekdayReportItem]:
     """Analyzes spending habits by day of the week."""
     query = select(Transaction)
 
-    if settings.username:
+    if settings.name:
         query = query.where(
             or_(
                 col(Transaction.receiver).is_(None),
-                col(Transaction.receiver) != settings.username,
+                col(Transaction.receiver) != settings.name,
             )
         )
 
