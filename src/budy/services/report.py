@@ -5,8 +5,9 @@ from datetime import date
 from statistics import mean
 from typing import Optional
 
-from sqlmodel import Session, desc, func, select
+from sqlmodel import Session, col, desc, func, or_, select
 
+from budy.config import settings
 from budy.schemas import (
     Budget,
     ForecastData,
@@ -38,15 +39,20 @@ def generate_monthly_report_data(
         )
     ).first()
 
-    total_spent = (
-        session.scalar(
-            select(func.sum(Transaction.amount)).where(
-                Transaction.entry_date >= start_date,
-                Transaction.entry_date <= end_date,
+    query = select(func.sum(Transaction.amount)).where(
+        Transaction.entry_date >= start_date,
+        Transaction.entry_date <= end_date,
+    )
+
+    if settings.username:
+        query = query.where(
+            or_(
+                col(Transaction.receiver).is_(None),
+                col(Transaction.receiver) != settings.username,
             )
         )
-        or 0
-    )
+
+    total_spent = session.scalar(query) or 0
 
     forecast = None
     is_current_month = (target_month == today.month) and (target_year == today.year)
@@ -86,6 +92,14 @@ def get_top_payees(
             Transaction.entry_date <= date(year, 12, 31),
         )
 
+    if settings.username:
+        query = query.where(
+            or_(
+                col(Transaction.receiver).is_(None),
+                col(Transaction.receiver) != settings.username,
+            )
+        )
+
     transactions = session.exec(query).all()
     if not transactions:
         return []
@@ -119,6 +133,14 @@ def get_volatility_report_data(
         query = query.where(
             Transaction.entry_date >= date(year, 1, 1),
             Transaction.entry_date <= date(year, 12, 31),
+        )
+
+    if settings.username:
+        query = query.where(
+            or_(
+                col(Transaction.receiver).is_(None),
+                col(Transaction.receiver) != settings.username,
+            )
         )
 
     transactions = session.exec(query.order_by(desc(Transaction.amount))).all()
@@ -158,7 +180,17 @@ def get_volatility_report_data(
 
 def get_weekday_report_data(*, session: Session) -> list[WeekdayReportItem]:
     """Analyzes spending habits by day of the week."""
-    transactions = session.exec(select(Transaction)).all()
+    query = select(Transaction)
+
+    if settings.username:
+        query = query.where(
+            or_(
+                col(Transaction.receiver).is_(None),
+                col(Transaction.receiver) != settings.username,
+            )
+        )
+
+    transactions = session.exec(query).all()
     if not transactions:
         return []
 
