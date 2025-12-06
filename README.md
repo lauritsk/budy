@@ -121,9 +121,9 @@ $ budy budgets add [OPTIONS]
 
 **Options**:
 
-* `-a, --amount FLOAT RANGE`: Set the budget target amount.  [1&lt;=x&lt;=9999999; required]
-* `-m, --month INTEGER RANGE`: Set the budget target month.  [1&lt;=x&lt;=12]
-* `-y, --year INTEGER RANGE`: Set the budget target year.  [1900&lt;=x&lt;=2100]
+* `-a, --amount FLOAT RANGE`: Target amount.  [1&lt;=x&lt;=9999999; required]
+* `-m, --month INTEGER RANGE`: Target month.  [1&lt;=x&lt;=12]
+* `-y, --year INTEGER RANGE`: Target year.  [1900&lt;=x&lt;=2100]
 * `--help`: Show this message and exit.
 
 ### `budy budgets list`
@@ -146,7 +146,6 @@ $ budy budgets list [OPTIONS]
 ### `budy budgets generate`
 
 Auto-generate monthly budgets based on historical transaction data.
-Calculates suggestions using recent spending trends and seasonal history.
 
 **Usage**:
 
@@ -156,9 +155,9 @@ $ budy budgets generate [OPTIONS]
 
 **Options**:
 
-* `-y, --year INTEGER RANGE`: The year to generate budgets for.  [1900&lt;=x&lt;=2100]
+* `-y, --year INTEGER RANGE`: Target year.  [1900&lt;=x&lt;=2100]
 * `-f, --force`: Overwrite existing budgets without asking.
-* `--yes`: Automatically confirm saving suggestions.
+* `--yes`: Skip confirmation prompt.
 * `--help`: Show this message and exit.
 
 ## `budy reports`
@@ -181,7 +180,7 @@ $ budy reports [OPTIONS] COMMAND [ARGS]...
 * `year`: Show the budget status report for a...
 * `weekday`: Analyze spending habits by day of the week.
 * `volatility`: Analyze spending volatility and outliers.
-* `search`: Search transactions by keyword.
+* `search`: Search transactions by keyword in receiver...
 * `payees`: Rank payees by total spending or frequency.
 
 ### `budy reports month`
@@ -196,8 +195,8 @@ $ budy reports month [OPTIONS]
 
 **Options**:
 
-* `-m, --month INTEGER RANGE`: The month to report on (defaults to current).  [1&lt;=x&lt;=12]
-* `-y, --year INTEGER RANGE`: The year to report on (defaults to current).  [1900&lt;=x&lt;=2100]
+* `-m, --month INTEGER RANGE`: Target month.  [1&lt;=x&lt;=12]
+* `-y, --year INTEGER RANGE`: Target year.  [1900&lt;=x&lt;=2100]
 * `--help`: Show this message and exit.
 
 ### `budy reports year`
@@ -212,13 +211,12 @@ $ budy reports year [OPTIONS]
 
 **Options**:
 
-* `-y, --year INTEGER RANGE`: The year to report on (defaults to current).  [1900&lt;=x&lt;=2100]
+* `-y, --year INTEGER RANGE`: Target year.  [1900&lt;=x&lt;=2100]
 * `--help`: Show this message and exit.
 
 ### `budy reports weekday`
 
 Analyze spending habits by day of the week.
-Shows which days you statistically spend the most money on.
 
 **Usage**:
 
@@ -233,7 +231,6 @@ $ budy reports weekday [OPTIONS]
 ### `budy reports volatility`
 
 Analyze spending volatility and outliers.
-Shows standard deviation and the largest transactions.
 
 **Usage**:
 
@@ -243,13 +240,12 @@ $ budy reports volatility [OPTIONS]
 
 **Options**:
 
-* `-y, --year INTEGER RANGE`: Filter analysis by year (defaults to all time).  [1900&lt;=x&lt;=2100]
+* `-y, --year INTEGER RANGE`: Target year.  [1900&lt;=x&lt;=2100]
 * `--help`: Show this message and exit.
 
 ### `budy reports search`
 
-Search transactions by keyword.
-Looks inside the Receiver name and Description.
+Search transactions by keyword in receiver or description.
 
 **Usage**:
 
@@ -269,7 +265,6 @@ $ budy reports search [OPTIONS] QUERY
 ### `budy reports payees`
 
 Rank payees by total spending or frequency.
-Who is getting most of your money?
 
 **Usage**:
 
@@ -279,7 +274,7 @@ $ budy reports payees [OPTIONS]
 
 **Options**:
 
-* `-y, --year INTEGER RANGE`: Filter analysis by year (defaults to all time).  [1900&lt;=x&lt;=2100]
+* `-y, --year INTEGER RANGE`: Target year.  [1900&lt;=x&lt;=2100]
 * `-l, --limit INTEGER`: Number of payees to show.  [default: 10]
 * `-c, --by-count`: Sort by transaction count instead of total amount.
 * `--help`: Show this message and exit.
