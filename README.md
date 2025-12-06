@@ -16,9 +16,26 @@ $ budy [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
+* `setup`: Initialize the configuration file with...
 * `transactions`: Manage transaction history.
 * `budgets`: Set and manage monthly targets.
 * `reports`: View financial insights.
+
+## `budy setup`
+
+Initialize the configuration file with your details.
+
+**Usage**:
+
+```console
+$ budy setup [OPTIONS]
+```
+
+**Options**:
+
+* `--first-name TEXT`: Your first name.
+* `--last-name TEXT`: Your last name.
+* `--help`: Show this message and exit.
 
 ## `budy transactions`
 
