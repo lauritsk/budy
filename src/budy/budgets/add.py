@@ -77,7 +77,7 @@ def create_budget(
 
     console.print(
         f"[green]✓ Saved![/] Budget for [bold]{target_month}/{target_year}[/] "
-        f"set to [green]${budget.amount / 100:,.2f}[/]"
+        f"set to [green]{settings.currency_symbol}{budget.amount / 100:,.2f}[/]"
     )
 
 

@@ -5,6 +5,7 @@ from rich.console import Console
 from sqlmodel import Session
 from typer import Option, Typer
 
+from budy.config import settings
 from budy.database import engine
 from budy.services.transaction import create_transaction
 from budy.views import render_success
@@ -51,7 +52,7 @@ def add_transaction(
     )
 
     console.print(
-        f"[bold]${transaction.amount / 100:,.2f}[/bold] on {transaction.entry_date.strftime('%B %d, %Y')}"
+        f"[bold]{settings.currency_symbol}{transaction.amount / 100:,.2f}[/bold] on {transaction.entry_date.strftime('%B %d, %Y')}"
     )
 
 
