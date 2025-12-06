@@ -25,7 +25,8 @@ class Settings(BaseModel):
     currency_symbol: str = "$"
     min_year: int = 1900
     max_year: int = 2100
-    name: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
     banks: dict[str, BankConfig] = Field(
         default_factory=lambda: {
             "lhv": BankConfig(
