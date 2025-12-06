@@ -12,12 +12,15 @@ run = "ruff check"
 run = "ty check"
 
 [tasks.test]
+depends = ["lint", "typecheck"]
 run = "uv run pytest"
 
 [tasks.build]
+depends = ["lint", "typecheck", "test"]
 run = "uv build"
 
 [tasks.generate-docs]
+depends = ["lint", "typecheck", "test"]
 run = "uv run typer budy utils docs --output README.md --name budy"
 
 [tasks.ci]
