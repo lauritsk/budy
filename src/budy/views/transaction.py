@@ -3,6 +3,7 @@ from datetime import date
 from rich.console import Group
 from rich.table import Table
 
+from budy.config import settings
 from budy.schemas import Transaction
 from budy.views.messages import render_success, render_warning
 
@@ -26,7 +27,7 @@ def render_transaction_list(
         "Amount",
         justify="right",
         style="green",
-        footer=f"${page_total_cents / 100:,.2f}",
+        footer=f"{settings.currency_symbol}{page_total_cents / 100:,.2f}",
     )
 
     for day, transactions in daily_transactions:
@@ -48,7 +49,12 @@ def render_transaction_list(
 
             details_str = "\n".join(details_parts) if details_parts else "[dim]-[/]"
 
-            table.add_row(str(t.id), date_str, details_str, f"${t.amount / 100:,.2f}")
+            table.add_row(
+                str(t.id),
+                date_str,
+                details_str,
+                f"{settings.currency_symbol}{t.amount / 100:,.2f}",
+            )
 
     return table
 
@@ -74,7 +80,7 @@ def render_simple_transaction_list(
             t.entry_date.strftime("%b %d, %Y"),
             receiver,
             desc,
-            f"${t.amount / 100:,.2f}",
+            f"{settings.currency_symbol}{t.amount / 100:,.2f}",
         )
 
     return table
@@ -90,7 +96,7 @@ def render_import_summary(
     count = len(transactions)
     total_display = sum(t.amount for t in transactions) / 100.0
 
-    summary_text = f"\nFound [bold]{count}[/] transactions totaling [green]${total_display:,.2f}[/]."
+    summary_text = f"\nFound [bold]{count}[/] transactions totaling [green]{settings.currency_symbol}{total_display:,.2f}[/]."
 
     if dry_run:
         status_text = "[yellow]Dry run active. No changes made to database.[/]"

@@ -2,6 +2,7 @@ from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
 
+from budy.config import settings
 from budy.schemas import (
     MonthlyReportData,
     PayeeRankingItem,
@@ -45,7 +46,7 @@ def render_weekday_report(*, report_data: list[WeekdayReportItem]) -> Table:
         "Total Spent",
         justify="right",
         style="bold",
-        footer=f"${total_spent / 100:,.2f}",
+        footer=f"{settings.currency_symbol}{total_spent / 100:,.2f}",
     )
 
     for item in report_data:
@@ -54,9 +55,9 @@ def render_weekday_report(*, report_data: list[WeekdayReportItem]) -> Table:
         else:
             table.add_row(
                 item.day_name,
-                f"${item.avg_amount / 100:,.2f}",
+                f"{settings.currency_symbol}{item.avg_amount / 100:,.2f}",
                 str(item.count),
-                f"${item.total_amount / 100:,.2f}",
+                f"{settings.currency_symbol}{item.total_amount / 100:,.2f}",
             )
     return table
 
@@ -79,8 +80,8 @@ def render_payee_ranking(
             f"#{i}",
             item.name,
             str(item.count),
-            f"${item.total / 100:,.2f}",
-            f"${item.avg / 100:,.2f}",
+            f"{settings.currency_symbol}{item.total / 100:,.2f}",
+            f"{settings.currency_symbol}{item.avg / 100:,.2f}",
         )
 
     return table
@@ -108,7 +109,7 @@ def render_search_results(
         "Amount",
         justify="right",
         style="red bold",
-        footer=f"${total_cents / 100:,.2f}",
+        footer=f"{settings.currency_symbol}{total_cents / 100:,.2f}",
     )
 
     for t in display_results:
@@ -120,7 +121,7 @@ def render_search_results(
             t.entry_date.strftime("%b %d, %Y"),
             t.receiver or "[dim]-[/]",
             desc,
-            f"${t.amount / 100:,.2f}",
+            f"{settings.currency_symbol}{t.amount / 100:,.2f}",
         )
 
     return table
@@ -141,8 +142,13 @@ def render_volatility_report(*, data: VolatilityReportData, year: int | None) ->
     grid.add_column(style="dim")
     grid.add_column(justify="right", style="bold")
     grid.add_row("Total Transactions:", str(data.total_count))
-    grid.add_row("Average Amount:", f"${data.avg_amount / 100:,.2f}")
-    grid.add_row("Standard Deviation:", f"${data.stdev_amount / 100:,.2f}")
+    grid.add_row(
+        "Average Amount:", f"{settings.currency_symbol}{data.avg_amount / 100:,.2f}"
+    )
+    grid.add_row(
+        "Standard Deviation:",
+        f"{settings.currency_symbol}{data.stdev_amount / 100:,.2f}",
+    )
 
     panel = Panel(
         grid,

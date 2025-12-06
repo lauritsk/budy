@@ -4,6 +4,7 @@ from typing import Optional
 from rich.panel import Panel
 from rich.table import Table
 
+from budy.config import settings
 from budy.schemas import Budget, BudgetSuggestion, MonthlyReportData
 
 
@@ -19,7 +20,10 @@ def render_budget_list(
     table.add_column("ID", justify="right", style="dim")
     table.add_column("Month", style="cyan", footer="Total Budgeted:")
     table.add_column(
-        "Amount", justify="right", style="green", footer=f"${total_budgeted:,.0f}"
+        "Amount",
+        justify="right",
+        style="green",
+        footer=f"{settings.currency_symbol}{total_budgeted:,.0f}",
     )
 
     for month_idx, budget in budgets:
@@ -29,7 +33,7 @@ def render_budget_list(
             table.add_row(
                 str(budget.id),
                 month_name,
-                f"${budget.amount / 100.0:,.0f}",
+                f"{settings.currency_symbol}{budget.amount / 100.0:,.0f}",
             )
         else:
             table.add_row(
@@ -51,9 +55,9 @@ def render_budget_preview(*, suggestions: list[BudgetSuggestion], year: int) -> 
     for item in suggestions:
         current_str = "-"
         if item.existing:
-            current_str = f"${item.existing.amount / 100:,.0f}"
+            current_str = f"{settings.currency_symbol}{item.existing.amount / 100:,.0f}"
 
-        suggested_str = f"${item.amount / 100:,.0f}"
+        suggested_str = f"{settings.currency_symbol}{item.amount / 100:,.0f}"
 
         table.add_row(item.month_name, current_str, suggested_str)
 
@@ -78,7 +82,9 @@ def render_budget_status(*, data: MonthlyReportData) -> Panel:
         stats_table.add_column(justify="right")
 
         stats_table.add_row("Budgeted:", "-")
-        stats_table.add_row("Spent:", f"[bold]${spent_display:,.0f}[/bold]")
+        stats_table.add_row(
+            "Spent:", f"[bold]{settings.currency_symbol}{spent_display:,.0f}[/bold]"
+        )
         stats_table.add_row("Remaining:", "-")
 
         content = Table.grid()
@@ -116,9 +122,13 @@ def render_budget_status(*, data: MonthlyReportData) -> Panel:
     stats_table.add_column(style="cyan")
     stats_table.add_column(justify="right")
 
-    stats_table.add_row("Budgeted:", f"${budget_display:,.0f}")
-    stats_table.add_row("Spent:", f"[bold {color}]${spent_display:,.0f}[/]")
-    stats_table.add_row("Remaining:", f"${remaining_display:,.0f}")
+    stats_table.add_row("Budgeted:", f"{settings.currency_symbol}{budget_display:,.0f}")
+    stats_table.add_row(
+        "Spent:", f"[bold {color}]{settings.currency_symbol}{spent_display:,.0f}[/]"
+    )
+    stats_table.add_row(
+        "Remaining:", f"{settings.currency_symbol}{remaining_display:,.0f}"
+    )
 
     filled_len = min(int((total_spent / budget.amount) * BAR_WIDTH), BAR_WIDTH)
     empty_len = BAR_WIDTH - filled_len
@@ -140,12 +150,18 @@ def render_budget_status(*, data: MonthlyReportData) -> Panel:
         projected_total = data.forecast.projected_total
         projected_overage = data.forecast.projected_overage
 
-        grid.add_row("Daily Average:", f"${avg_per_day / 100:,.0f}")
-        grid.add_row("Projected Total:", f"[bold]${projected_total / 100:,.0f}[/]")
+        grid.add_row(
+            "Daily Average:", f"{settings.currency_symbol}{avg_per_day / 100:,.0f}"
+        )
+        grid.add_row(
+            "Projected Total:",
+            f"[bold]{settings.currency_symbol}{projected_total / 100:,.0f}[/]",
+        )
 
         if projected_overage is not None and projected_overage > 0:
             grid.add_row(
-                "Projected Overage:", f"[red]+${projected_overage / 100:,.0f}[/]"
+                "Projected Overage:",
+                f"[red]+{settings.currency_symbol}{projected_overage / 100:,.0f}[/]",
             )
 
         content.add_row("\n[bold underline]Forecast[/]")

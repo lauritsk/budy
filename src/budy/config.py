@@ -27,14 +27,11 @@ class Settings(BaseModel):
         config_data = {}
 
         if config_path.exists():
-            try:
-                with open(config_path, "rb") as f:
-                    # Assumes config file has a [budy] section or key-values at root
-                    data = tomllib.load(f)
-                    # If you want keys under a [tool.budy] section, access them here
-                    config_data = data
-            except Exception:
-                pass
+            with open(config_path, "rb") as f:
+                # Assumes config file has a [budy] section or key-values at root
+                data = tomllib.load(f)
+                # If you want keys under a [tool.budy] section, access them here
+                config_data = data
 
         return cls(**config_data)
 
