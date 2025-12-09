@@ -27,6 +27,8 @@ def _get_name_variants(name: str) -> set[str]:
     if not parts:
         return {clean_name}
 
+    # Banks often format names inconsistently in statement descriptions (e.g., "J. Smith" vs "J.Smith" vs "J Smith").
+    # We generate all common variations to ensure we can identify the user regardless of how the bank formatted the receiver field.
     variants = {clean_name}
 
     # 1. All Initials (e.g. "khl", "k.h.l.", "k. h. l.")
@@ -189,6 +191,7 @@ def get_volatility_report_data(
 
     transactions = [t for t in transactions if not _is_user(t.receiver)]
 
+    # Minimum sample size of 10 is required to calculate a meaningful standard deviation and avoid flagging normal transactions as outliers in sparse datasets.
     if not transactions or len(transactions) < 10:
         return None
 
@@ -200,8 +203,7 @@ def get_volatility_report_data(
     except statistics.StatisticsError:
         stdev = 0
 
-    # Statistical Outlier Detection (Z-Score method)
-    # We flag transactions that are more than 2 standard deviations above the mean.
+    # We use a Z-score of 2 (approx. 95% confidence interval) to identify transactions that deviate significantly from the norm.
     threshold = avg_amount + (2 * stdev)
 
     outliers = [t for t in transactions if t.amount > threshold]

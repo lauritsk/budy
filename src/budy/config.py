@@ -10,6 +10,7 @@ APP_NAME = "budy"
 
 class BankConfig(BaseModel):
     """Configuration for a specific bank's transaction file import."""
+
     delimiter: str = ","
     decimal: str = "."
     encoding: str = "utf-8"
@@ -23,12 +24,15 @@ class BankConfig(BaseModel):
 
 class Settings(BaseModel):
     """Application settings, loaded from defaults and optionally overridden by a config file."""
+
     app_name: str = APP_NAME
     currency_symbol: str = "$"
     min_year: int = 1900
     max_year: int = 2100
     first_name: str | None = None
     last_name: str | None = None
+    # Default configurations for major Estonian banks.
+    # These column headers match the standard CSV export format for these banks.
     banks: dict[str, BankConfig] = Field(
         default_factory=lambda: {
             "lhv": BankConfig(
