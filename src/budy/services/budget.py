@@ -155,6 +155,7 @@ def suggest_budget_amount(
         return 0
 
     # Strategy 1: Seasonality (Average of this specific month from previous years)
+    # We only fallback to the global average (Strategy 2) if this specific month has never been seen before.
     same_month_amounts = [
         amount
         for (year, month), amount in historical_data.items()
@@ -167,7 +168,7 @@ def suggest_budget_amount(
         # Strategy 2: Fallback to global average if no seasonal data exists
         prediction = mean(historical_data.values())
 
-    # Round to nearest 100 currency units (10000 cents) like the original model
+    # Amounts are in cents. We round to the nearest 100.00 currency units (10,000 cents) to provide "clean" budget suggestions rather than specific averages like 143.52.
     rounded_prediction = round(prediction / 10000) * 10000
 
     return int(rounded_prediction)
