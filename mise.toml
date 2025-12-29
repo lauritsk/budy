@@ -1,8 +1,6 @@
 [tools]
-helix = "latest"
 "pipx:ruff" = "latest"
 "pipx:ty" = "latest"
-sqlite = "latest"
 uv = "latest"
 
 [tasks.lint]
