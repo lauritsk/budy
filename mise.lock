@@ -11,7 +11,7 @@ version = "0.14.10"
 backend = "pipx:ruff"
 
 [[tools."pipx:ty"]]
-version = "0.0.5"
+version = "0.0.8"
 backend = "pipx:ty"
 
 [[tools.sqlite]]
