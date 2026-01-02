@@ -14,11 +14,19 @@ backend = "pipx:ruff"
 version = "0.0.8"
 backend = "pipx:ty"
 
+[[tools.ruff]]
+version = "0.14.10"
+backend = "aqua:astral-sh/ruff"
+
 [[tools.sqlite]]
 version = "3.51.1"
 backend = "asdf:sqlite"
 
+[[tools.ty]]
+version = "0.0.8"
+backend = "github:astral-sh/ty"
+
 [[tools.uv]]
-version = "0.9.20"
+version = "0.9.21"
 backend = "aqua:astral-sh/uv"
-"platforms.macos-arm64" = { checksum = "sha256:c3f4b03a5d526119d41fa8b8f255aa8053c49d787778df654895e3d174b1519a", url = "https://github.com/astral-sh/uv/releases/download/0.9.20/uv-aarch64-apple-darwin.tar.gz"}
+"platforms.macos-arm64" = { checksum = "sha256:473977236ef8ac5937c80de08a3599cb6ed6021d0e015e10f88076767877a153", url = "https://github.com/astral-sh/uv/releases/download/0.9.21/uv-aarch64-apple-darwin.tar.gz"}

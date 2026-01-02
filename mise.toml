@@ -1,7 +1,7 @@
 [tools]
-"pipx:ruff" = "latest"
-"pipx:ty" = "latest"
+ty = "latest"
 uv = "latest"
+ruff = "latest"
 
 [tasks.lint]
 run = "ruff check"
