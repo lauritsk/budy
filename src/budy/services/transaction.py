@@ -6,7 +6,7 @@ from sqlmodel import Session, asc, col, desc, or_, select
 
 from budy.config import settings
 from budy.importer import BaseBankImporter
-from budy.schemas import Transaction
+from budy.schemas import CategoryRule, Transaction
 
 
 def get_transactions(
@@ -124,6 +124,17 @@ def import_transactions(
     importer = BaseBankImporter(**bank_config.model_dump())
 
     transactions = importer.process_file(file_path)
+
+    # Apply auto-categorization rules
+    rules = session.exec(select(CategoryRule)).all()
+    for txn in transactions:
+        # Combine receiver and description for matching
+        text_to_match = f"{txn.receiver or ''} {txn.description or ''}".lower()
+
+        for rule in rules:
+            if rule.pattern in text_to_match:
+                txn.category_id = rule.category_id
+                break
 
     if not dry_run and transactions:
         session.add_all(transactions)

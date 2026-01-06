@@ -15,7 +15,7 @@
   - [x] Create `export_transactions` service using Polars
   - [x] Add `budy transactions export` command (supports CSV and JSON)
 
-- [ ] **Auto-Categorization** (Feature)
-  - [ ] Create `CategoryRule` model (`id`, `pattern`, `category_id`)
-  - [ ] Add `budy categories rules` command to manage keyword mappings
-  - [ ] Update `import_transactions` logic to apply rules during bank CSV import
+- [x] **Auto-Categorization** (Feature)
+  - [x] Create `CategoryRule` model (`id`, `pattern`, `category_id`)
+  - [x] Add `budy categories rules` command to manage keyword mappings
+  - [x] Update `import_transactions` logic to apply rules during bank CSV import
