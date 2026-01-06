@@ -11,6 +11,14 @@ class Category(SQLModel, table=True):
     color: str = Field(default="white")
 
 
+class CategoryRule(SQLModel, table=True):
+    """Rule to auto-assign category based on keywords."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    pattern: str = Field(index=True)
+    category_id: int = Field(foreign_key="category.id")
+
+
 class Transaction(SQLModel, table=True):
     """Class that defines all transactions."""
 
