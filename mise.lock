@@ -1,3 +1,8 @@
+[[tools.fnox]]
+version = "1.7.0"
+backend = "github:jdx/fnox"
+"platforms.macos-arm64" = { checksum = "sha256:65f954960de7a5cabee7bfe84be328a0baf83ab3d5362b9192be6b4791d4d2f2", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-aarch64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587572"}
+
 [[tools.helix]]
 version = "25.07.1"
 backend = "aqua:helix-editor/helix"
