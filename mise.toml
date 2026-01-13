@@ -2,6 +2,7 @@
 ty = "latest"
 uv = "latest"
 ruff = "latest"
+fnox = "latest"
 
 [tasks.lint]
 run = "ruff check"

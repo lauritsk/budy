@@ -1,0 +1,5 @@
+default_provider = "age"
+
+[providers.age]
+type = "age"
+recipients = ["age1etf989ky5kq6gcf8n7ltc5kl42e8t4lgy3hjlq7c9zje3mjd8emqp65tsp"]
