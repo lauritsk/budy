@@ -1,3 +1,6 @@
+[prepare.uv]
+auto = true
+
 [tools]
 ty = "latest"
 uv = "latest"
