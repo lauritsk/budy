@@ -1,40 +1,14 @@
-[[tools.fnox]]
-version = "1.7.0"
-backend = "github:jdx/fnox"
-"platforms.linux-arm64" = { checksum = "sha256:d38305aa3f0b187b169a767eb56af905f55b792b2df6cbf0377efb30d4879731", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-aarch64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587574"}
-"platforms.macos-arm64" = { checksum = "sha256:65f954960de7a5cabee7bfe84be328a0baf83ab3d5362b9192be6b4791d4d2f2", url = "https://github.com/jdx/fnox/releases/download/v1.7.0/fnox-aarch64-apple-darwin.tar.gz", url_api = "https://api.github.com/repos/jdx/fnox/releases/assets/321587572"}
-
-[[tools.helix]]
-version = "25.07.1"
-backend = "aqua:helix-editor/helix"
-
-[[tools."pipx:pytest"]]
-version = "9.0.1"
-backend = "pipx:pytest"
-
-[[tools."pipx:ruff"]]
-version = "0.14.10"
-backend = "pipx:ruff"
-
-[[tools."pipx:ty"]]
-version = "0.0.8"
-backend = "pipx:ty"
-
 [[tools.ruff]]
 version = "0.14.13"
 backend = "aqua:astral-sh/ruff"
-"platforms.linux-arm64" = { checksum = "sha256:25941b777ff712f4d9473d26c1b875034214a3d5de20ea99b2add939dcd0b367", url = "https://github.com/astral-sh/ruff/releases/download/0.14.13/ruff-aarch64-unknown-linux-musl.tar.gz"}
-
-[[tools.sqlite]]
-version = "3.51.1"
-backend = "asdf:sqlite"
+"platforms.macos-arm64" = { checksum = "sha256:067d1a90da8add55614eff91990425883a092d8279d9e503258ff8be0f8e9c18", url = "https://github.com/astral-sh/ruff/releases/download/0.14.13/ruff-aarch64-apple-darwin.tar.gz"}
 
 [[tools.ty]]
 version = "0.0.12"
-backend = "github:astral-sh/ty"
-"platforms.linux-arm64" = { checksum = "sha256:ec8f1d35b5fd93aae819e21f00676af465af68b77601a8b196ad889af7b0c7e3", url = "https://github.com/astral-sh/ty/releases/download/0.0.12/ty-aarch64-unknown-linux-gnu.tar.gz", url_api = "https://api.github.com/repos/astral-sh/ty/releases/assets/340634145"}
+backend = "aqua:astral-sh/ty"
+"platforms.macos-arm64" = { checksum = "sha256:d9cdcd0877fb20dc969bb20e7b08f6e26d49eae034857dda1523a82afe686a5e", url = "https://github.com/astral-sh/ty/releases/download/0.0.12/ty-aarch64-apple-darwin.tar.gz"}
 
 [[tools.uv]]
 version = "0.9.26"
 backend = "aqua:astral-sh/uv"
-"platforms.linux-arm64" = { checksum = "sha256:ba8698c36c00c22efed4bd3506339b03c95604d001f02eaf6fbc814c9224d801", url = "https://github.com/astral-sh/uv/releases/download/0.9.26/uv-aarch64-unknown-linux-musl.tar.gz"}
+"platforms.macos-arm64" = { checksum = "sha256:fcf0a9ea6599c6ae28a4c854ac6da76f2c889354d7c36ce136ef071f7ab9721f", url = "https://github.com/astral-sh/uv/releases/download/0.9.26/uv-aarch64-apple-darwin.tar.gz"}
