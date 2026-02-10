@@ -1,13 +1,10 @@
 {
-  "name": "mise",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "features": {
-    "ghcr.io/devcontainers-extra/features/mise:1": {}
-  },
-  "customizations": {},
-  "mounts": [],
-  "containerEnv": {
-    "MISE_AGE_KEY": "${localEnv:MISE_AGE_KEY}"
-  },
-  "remoteEnv": {}
+    "name": "budy",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/devcontainers-extra/features/mise:1": {}
+    },
+    "containerEnv": {
+        "MISE_AGE_KEY": "${localEnv:MISE_AGE_KEY}"
+    },
 }
