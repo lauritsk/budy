@@ -2,9 +2,7 @@
     "name": "budy",
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/devcontainers-extra/features/mise:1": {}
-    },
-    "containerEnv": {
-        "MISE_AGE_KEY": "${localEnv:MISE_AGE_KEY}"
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/tailscale/codespace/tailscale": {}
     },
 }
