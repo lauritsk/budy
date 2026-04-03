@@ -27,8 +27,8 @@ def render_yearly_report(
 
     for i in range(0, len(panels), 3):
         row = panels[i : i + 3]
-        row += [""] * (3 - len(row))
-        grid.add_row(*row)
+        padded_row: list[Panel | str] = row + ([""] * (3 - len(row)))
+        grid.add_row(*padded_row)
 
     return grid
 

@@ -19,6 +19,7 @@ $ budy [OPTIONS] COMMAND [ARGS]...
 * `setup`: Initialize the configuration file with...
 * `transactions`: Manage transaction history.
 * `budgets`: Set and manage monthly targets.
+* `categories`
 * `reports`: View financial insights.
 
 ## `budy setup`
@@ -55,6 +56,9 @@ $ budy transactions [OPTIONS] COMMAND [ARGS]...
 
 * `add`: Add a new transaction to the database.
 * `list`: Display transaction history in a table.
+* `update`: Update an existing transaction.
+* `delete`: Delete a transaction.
+* `export`: Export transactions to CSV or JSON.
 * `import`: Import transactions from a bank CSV file.
 
 ### `budy transactions add`
@@ -71,6 +75,7 @@ $ budy transactions add [OPTIONS]
 
 * `-a, --amount FLOAT RANGE`: Set the transaction amount (in dollars/euros).  [0.01&lt;=x&lt;=9999999; required]
 * `-d, --date [%Y-%m-%d|%Y/%m/%d]`: Set the transaction date (YYYY-MM-DD).
+* `-c, --category INTEGER`: Category ID.
 * `--help`: Show this message and exit.
 
 ### `budy transactions list`
@@ -87,6 +92,64 @@ $ budy transactions list [OPTIONS]
 
 * `-o, --offset INTEGER`: Skip the first N entries.  [default: 0]
 * `-l, --limit INTEGER`: Limit the number of entries shown.  [default: 7]
+* `--help`: Show this message and exit.
+
+### `budy transactions update`
+
+Update an existing transaction.
+
+**Usage**:
+
+```console
+$ budy transactions update [OPTIONS] TRANSACTION_ID
+```
+
+**Arguments**:
+
+* `TRANSACTION_ID`: ID of the transaction to update.  [required]
+
+**Options**:
+
+* `-a, --amount FLOAT RANGE`: New amount.  [0.01&lt;=x&lt;=9999999]
+* `-d, --date [%Y-%m-%d|%Y/%m/%d]`: New date (YYYY-MM-DD).
+* `-r, --receiver TEXT`: New receiver/payee.
+* `--description, --desc TEXT`: New description.
+* `-c, --category INTEGER`: New Category ID.
+* `--help`: Show this message and exit.
+
+### `budy transactions delete`
+
+Delete a transaction.
+
+**Usage**:
+
+```console
+$ budy transactions delete [OPTIONS] TRANSACTION_ID
+```
+
+**Arguments**:
+
+* `TRANSACTION_ID`: ID of the transaction to delete.  [required]
+
+**Options**:
+
+* `-f, --force`: Force delete without confirmation.
+* `--help`: Show this message and exit.
+
+### `budy transactions export`
+
+Export transactions to CSV or JSON.
+
+**Usage**:
+
+```console
+$ budy transactions export [OPTIONS]
+```
+
+**Options**:
+
+* `-o, --output PATH`: Path to save the export file.  [required]
+* `-f, --format TEXT`: Output format (csv, json).  [default: csv]
 * `--help`: Show this message and exit.
 
 ### `budy transactions import`
@@ -175,6 +238,149 @@ $ budy budgets generate [OPTIONS]
 * `-y, --year INTEGER RANGE`: Target year.  [1900&lt;=x&lt;=2100]
 * `-f, --force`: Overwrite existing budgets without asking.
 * `--yes`: Skip confirmation prompt.
+* `--help`: Show this message and exit.
+
+## `budy categories`
+
+**Usage**:
+
+```console
+$ budy categories [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `list`: List all transaction categories.
+* `add`: Add a new transaction category.
+* `delete`: Delete a transaction category.
+* `rules`: Manage auto-categorization rules.
+
+### `budy categories list`
+
+List all transaction categories.
+
+**Usage**:
+
+```console
+$ budy categories list [OPTIONS]
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+### `budy categories add`
+
+Add a new transaction category.
+
+**Usage**:
+
+```console
+$ budy categories add [OPTIONS] NAME
+```
+
+**Arguments**:
+
+* `NAME`: Name of the category.  [required]
+
+**Options**:
+
+* `-c, --color TEXT`: Color for the category (e.g. red, blue, #ff0000).  [default: white]
+* `--help`: Show this message and exit.
+
+### `budy categories delete`
+
+Delete a transaction category.
+
+**Usage**:
+
+```console
+$ budy categories delete [OPTIONS] CATEGORY_ID
+```
+
+**Arguments**:
+
+* `CATEGORY_ID`: ID of the category to delete.  [required]
+
+**Options**:
+
+* `-f, --force`: Force delete without confirmation.
+* `--help`: Show this message and exit.
+
+### `budy categories rules`
+
+Manage auto-categorization rules.
+
+**Usage**:
+
+```console
+$ budy categories rules [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `list`: List all auto-categorization rules.
+* `add`: Add a new auto-categorization rule.
+* `delete`: Delete a rule.
+
+#### `budy categories rules list`
+
+List all auto-categorization rules.
+
+**Usage**:
+
+```console
+$ budy categories rules list [OPTIONS]
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+#### `budy categories rules add`
+
+Add a new auto-categorization rule.
+
+**Usage**:
+
+```console
+$ budy categories rules add [OPTIONS] PATTERN
+```
+
+**Arguments**:
+
+* `PATTERN`: Keyword pattern to match (case-insensitive).  [required]
+
+**Options**:
+
+* `-c, --category-id INTEGER`: ID of the category to assign.  [required]
+* `--help`: Show this message and exit.
+
+#### `budy categories rules delete`
+
+Delete a rule.
+
+**Usage**:
+
+```console
+$ budy categories rules delete [OPTIONS] RULE_ID
+```
+
+**Arguments**:
+
+* `RULE_ID`: ID of the rule to delete.  [required]
+
+**Options**:
+
+* `-f, --force`: Force delete without confirmation.
 * `--help`: Show this message and exit.
 
 ## `budy reports`

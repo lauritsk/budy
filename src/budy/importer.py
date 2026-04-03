@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 from sqlmodel import SQLModel
 
@@ -85,11 +85,14 @@ class BaseBankImporter(SQLModel):
                 q = q.with_columns(pl.lit(None).cast(pl.String).alias("desc_val"))
 
             # Final Selection
-            result = (
-                q.drop_nulls(subset=["parsed_date", "amount_cents"])
-                .filter(pl.col("amount_cents") > 0)
-                .select(["parsed_date", "amount_cents", "receiver_val", "desc_val"])
-            ).collect()
+            result = cast(
+                pl.DataFrame,
+                (
+                    q.drop_nulls(subset=["parsed_date", "amount_cents"])
+                    .filter(pl.col("amount_cents") > 0)
+                    .select(["parsed_date", "amount_cents", "receiver_val", "desc_val"])
+                ).collect(),
+            )
 
             return [
                 Transaction(

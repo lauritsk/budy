@@ -50,7 +50,7 @@ All commands should be run via `mise` to ensure the correct environment and tool
 
 - **CI Loop**: Run all checks (lint, types, tests, build).
   ```bash
-  mise run ci
+  mise run check
   ```
 
 ## 2. Code Style & Conventions

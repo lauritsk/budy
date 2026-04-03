@@ -1,40 +1,44 @@
 [tools]
+cocogitto = "7.0.0"
 gitleaks = "8.30.1"
-ruff = "0.15.8"
-ty = "0.0.26"
-uv = "0.11.2"
+uv = "0.11.3"
+
+[tasks.format]
+description = "Format project"
+run = "uv format --preview-features format"
 
 [tasks.lint]
-run = "ruff check"
+description = "Lint project"
+run = "uv format --preview-features format --check"
 
 [tasks.typecheck]
-run = "ty check"
+description = "Type-check project"
+run = "uvx ty check"
 
 [tasks.test]
-depends = ["lint", "typecheck"]
+description = "Run test suite"
 run = "uv run pytest"
 
 [tasks.build]
-depends = ["lint", "typecheck", "test"]
+description = "Build project package"
 run = "uv build"
 
-[tasks.generate-docs]
-depends = ["lint", "typecheck", "test"]
+[tasks.docs]
+description = "Regenerate CLI docs"
 run = "uv run typer budy utils docs --output README.md --name budy"
 
-[tasks.ci]
-depends = [
-  "lint",
-  "typecheck",
-  "test",
-  "build",
-  "generate-docs",
-]
-
-[tasks.gitleaks]
-description = "Scan the repository for secrets"
+[tasks.secrets]
+description = "Scan project for secrets"
 run = "gitleaks dir ."
 
-[tasks.pre-commit]
-description = "Run pre-commit checks"
-depends = ["gitleaks"]
+[tasks.audit]
+description = "Audit project dependencies"
+run = "uv audit --preview-features audit --locked"
+
+[tasks.commits]
+description = "Enforce conventional commits"
+run = "cog check"
+
+[tasks.check]
+description = "Run project checks"
+depends = ["format", "lint", "typecheck", "test", "build", "docs", "secrets", "audit", "commits"]
