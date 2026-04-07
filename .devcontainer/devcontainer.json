@@ -2,7 +2,7 @@
     "name": "budy",
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/devcontainers-extra/features/fish-apt-get:1": {}
-        "ghcr.io/devcontainers-extra/features/mise:1": {}
+        "ghcr.io/devcontainers-extra/features/fish-apt-get:1": {},
+        "ghcr.io/devcontainers-extra/features/mise:1": {},
     },
 }
