@@ -16,6 +16,9 @@ dependencies = [
 [project.scripts]
 budy = "budy:app"
 
+[tool.uv]
+exclude-newer = "1 week"
+
 [build-system]
 requires = ["uv_build>=0.9.14,<0.10.0"]
 build-backend = "uv_build"
