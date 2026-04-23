@@ -56,11 +56,11 @@ run = "uv build"
 
 [tasks.docs]
 description = "Regenerate CLI docs"
-run = "uv run typer budy utils docs --output README.md --name budy"
+run = "mkdir -p docs && uv run typer budy utils docs --output docs/cli.md --name budy"
 
 [tasks."docs:check"]
 description = "Check that CLI docs are up to date"
-run = "tmp=$(mktemp) && trap 'rm -f \"$tmp\"' EXIT && uv run typer budy utils docs --output \"$tmp\" --name budy && diff -u README.md \"$tmp\""
+run = "tmp=$(mktemp) && trap 'rm -f \"$tmp\"' EXIT && uv run typer budy utils docs --output \"$tmp\" --name budy && diff -u docs/cli.md \"$tmp\""
 
 [tasks."audit:deps"]
 description = "Audit project dependencies"
