@@ -44,7 +44,7 @@ depends = ["lint:format", "lint:actions", "lint:shell"]
 
 [tasks.typecheck]
 description = "Type-check project"
-run = "uvx ty check"
+run = "uv run ty check"
 
 [tasks.test]
 description = "Run test suite"
