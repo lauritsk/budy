@@ -1,22 +1,46 @@
 [tools]
+"aqua:gastownhall/beads" = "1.0.2"
 cocogitto = "7.0.0"
-gitleaks = "8.30.1"
-uv = "0.11.6"
-
-[hooks]
-enter = { task = "setup" }
+trivy = "0.70.0"
+shellcheck = "0.11.0"
+actionlint = "1.7.12"
+cosign = "3.0.6"
+syft = "1.43.0"
+goreleaser = "2.15.4"
+uv = "0.11.7"
 
 [tasks.setup]
 description = "Sync project dependencies"
+depends = ["setup:pre-commit"]
 run = "uv sync --locked"
 
+[tasks."setup:pre-commit"]
+description = "Install git pre-commit hook"
+run = "mise generate git-pre-commit --write --task=pre-commit"
+
+[tasks."pre-commit"]
+description = "Run pre-commit checks"
+depends = ["lint"]
+
 [tasks.format]
-description = "Format project"
+description = "Format project source files"
 run = "uv format --preview-features format"
 
-[tasks.lint]
-description = "Lint project"
+[tasks."lint:format"]
+description = "Check project formatting"
 run = "uv format --preview-features format --check"
+
+[tasks."lint:actions"]
+description = "Lint GitHub Actions workflows"
+run = "actionlint"
+
+[tasks."lint:shell"]
+description = "Lint shell scripts"
+run = "files=$(find . -type f -name '*.sh' -not -path './.git/*' -not -path './node_modules/*' -not -path './vendor/*'); if [ -n \"$files\" ]; then printf '%s\\n' \"$files\" | while IFS= read -r file; do shellcheck \"$file\"; done; else echo 'skip: no shell scripts found'; fi"
+
+[tasks.lint]
+description = "Run all lint checks"
+depends = ["lint:format", "lint:actions", "lint:shell"]
 
 [tasks.typecheck]
 description = "Type-check project"
@@ -34,18 +58,51 @@ run = "uv build"
 description = "Regenerate CLI docs"
 run = "uv run typer budy utils docs --output README.md --name budy"
 
-[tasks.secrets]
-description = "Scan project for secrets"
-run = "gitleaks dir ."
+[tasks."docs:check"]
+description = "Check that CLI docs are up to date"
+run = "tmp=$(mktemp) && trap 'rm -f \"$tmp\"' EXIT && uv run typer budy utils docs --output \"$tmp\" --name budy && diff -u README.md \"$tmp\""
 
-[tasks.audit]
+[tasks."audit:deps"]
 description = "Audit project dependencies"
 run = "uv audit --preview-features audit --locked"
 
-[tasks.commits]
-description = "Enforce conventional commits"
-run = "cog check"
+[tasks."audit:trivy"]
+description = "Audit repository files with Trivy, including secrets"
+run = "trivy fs --scanners vuln,misconfig,secret --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 ."
+
+[tasks.audit]
+description = "Run all audit checks"
+depends = ["audit:deps", "audit:trivy"]
+
+[tasks.sbom]
+description = "Generate an SBOM for the repository"
+run = "output=${SBOM_OUTPUT:-sbom.syft.json}; syft dir:. -o syft-json=\"$output\" && printf 'wrote %s\\n' \"$output\""
+
+[tasks."check:commits"]
+description = "Check conventional commits for new commits"
+run = "head=$(git rev-parse HEAD); base=$(git merge-base HEAD origin/main 2>/dev/null || true); if [ -n \"$base\" ] && [ \"$base\" != \"$head\" ]; then cog check \"$base..$head\"; elif git rev-parse --verify HEAD~1 >/dev/null 2>&1; then cog check HEAD~1..HEAD; else echo 'skip: no commit range available'; fi"
+
+[tasks."release:version"]
+description = "Create the next version and tag"
+run = "cog bump --auto"
+
+[tasks."release:check"]
+description = "Validate GoReleaser configuration when present"
+run = "if [ -f .goreleaser.yaml ] || [ -f .goreleaser.yml ]; then goreleaser check; else echo 'skip: no goreleaser config'; fi"
+
+[tasks."release:verify"]
+description = "Run GoReleaser snapshot from a clean worktree when configured"
+run = "if [ -f .goreleaser.yaml ] || [ -f .goreleaser.yml ]; then tmp=$(mktemp -d) && trap 'git worktree remove --force \"$tmp\"' EXIT && git worktree add --quiet --detach \"$tmp\" HEAD && (cd \"$tmp\" && goreleaser release --snapshot --clean); else echo 'skip: no goreleaser config'; fi"
+
+[tasks."release:publish"]
+description = "Publish the current tagged release when configured"
+depends = ["check", "release:verify"]
+run = "if [ -f .goreleaser.yaml ] || [ -f .goreleaser.yml ]; then goreleaser release --clean; else echo 'skip: no goreleaser config'; fi"
+
+[tasks.release]
+description = "Publish the current tagged release"
+depends = ["release:publish"]
 
 [tasks.check]
 description = "Run project checks"
-depends = ["format", "lint", "typecheck", "test", "build", "docs", "secrets", "audit", "commits"]
+depends = ["lint", "typecheck", "test", "build", "docs:check", "audit", "check:commits", "release:check"]
