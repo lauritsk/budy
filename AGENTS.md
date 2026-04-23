@@ -1,127 +1,40 @@
-# Budy Development Guidelines
+# Agent Instructions
 
-This document provides instructions for agents and developers working on the `budy` codebase.
+This project uses **bd** (beads) for issue tracking. Run `bd prime` for full workflow context.
 
-## 1. Environment & Commands
+## Quick Reference
 
-This project uses `uv` for dependency management and `mise` for task execution.
-
-### Setup
-Ensure `uv` and `mise` are installed.
 ```bash
-mise install
+bd ready              # Find available work
+bd show <id>          # View issue details
+bd update <id> --claim  # Claim work atomically
+bd close <id>         # Complete work
+bd dolt push          # Push beads data to remote
 ```
 
-### Common Commands
-All commands should be run via `mise` to ensure the correct environment and tool versions are used.
+## Non-Interactive Shell Commands
 
-- **Linting**: Check code for style and errors.
-  ```bash
-  mise run lint
-  ```
-  (Runs `ruff check`)
+**ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
 
-- **Type Checking**: Verify type hints.
-  ```bash
-  mise run typecheck
-  ```
-  (Runs `ty check` - likely a wrapper or alias for a type checker, ensure `ty` is installed via mise)
+Shell commands like `cp`, `mv`, and `rm` may be aliased to include `-i` (interactive) mode on some systems, causing the agent to hang indefinitely waiting for y/n input.
 
-- **Testing**: Run the test suite.
-  ```bash
-  mise run test
-  ```
-  (Runs `uv run pytest`)
+**Use these forms instead:**
+```bash
+# Force overwrite without prompting
+cp -f source dest           # NOT: cp source dest
+mv -f source dest           # NOT: mv source dest
+rm -f file                  # NOT: rm file
 
-- **Run Single Test**:
-  ```bash
-  uv run pytest tests/test_transactions.py::test_add_transaction
-  ```
-
-- **Build**: Build the package.
-  ```bash
-  mise run build
-  ```
-
-- **Docs**: Generate documentation.
-  ```bash
-  mise run generate-docs
-  ```
-
-- **CI Loop**: Run all checks (lint, types, tests, build).
-  ```bash
-  mise run check
-  ```
-
-## 2. Code Style & Conventions
-
-### Formatting & Linting
-- Follow standard Python formatting (Black/Ruff style).
-- **Line Length**: Adhere to the project's configuration (likely 88 or 100 chars).
-- **Quotes**: Use double quotes `"` for strings.
-- **Imports**: Grouped and sorted:
-  1. Standard Library
-  2. Third-Party
-  3. Local Application (`budy.xxx`)
-  *Use absolute imports for local modules.*
-
-### Type Hints
-- **Strict Typing**: All functions and methods must have type hints.
-- **Syntax**: Use modern Python 3.10+ syntax:
-  - `list[str]` instead of `List[str]`
-  - `str | None` instead of `Optional[str]`
-- **Models**: Use `SQLModel` for database entities and schemas.
-
-### Naming Conventions
-- **Classes**: `PascalCase` (e.g., `Transaction`, `BudgetReport`).
-- **Functions/Variables**: `snake_case` (e.g., `get_transactions`, `total_amount`).
-- **Files**: `snake_case` (e.g., `transaction.py`, `utils.py`).
-- **Constants**: `UPPER_CASE` (e.g., `DEFAULT_CURRENCY`).
-
-### Architecture & Patterns
-- **Directory Structure**:
-  - `src/budy/services/`: Business logic (pure functions, database operations).
-  - `src/budy/views/`: CLI commands and view logic.
-  - `src/budy/schemas.py`: Data models and Pydantic/SQLModel schemas.
-  - `tests/`: Pytest suite.
-
-- **Dependency Injection**:
-  - Pass `Session` objects explicitly to service functions.
-  - Use keyword-only arguments for service functions to prevent argument swapping errors.
-  ```python
-  def create_transaction(*, session: Session, amount: int) -> Transaction:
-      ...
-  ```
-
-- **Money Handling**:
-  - **Storage**: Store monetary values as `int` (cents) in the database.
-  - **Logic/Display**: Convert to `float` or `Decimal` when presenting to the user or performing complex calculations that require it.
-
-- **Database**:
-  - Use `SQLModel` for ORM interactions.
-  - Prefer `select(Model).where(...)` syntax for queries.
-
-### Error Handling
-- Use specific exceptions (e.g., `ValueError`) with descriptive messages.
-- Fail fast with guard clauses.
-
-### Testing
-- **Framework**: `pytest`.
-- **Property-based Testing**: Use `hypothesis` for logic that handles user input or data processing.
-- **CLI Testing**: Use `typer.testing.CliRunner`.
-- **Fixtures**: Use `conftest.py` for shared fixtures.
-- **Database Tests**: Ensure tests isolate database state (e.g., `reset_db` helper or transaction rollback fixtures).
-
-## 3. Example Service Function
-```python
-from sqlmodel import Session
-from budy.schemas import Transaction
-
-def do_something(*, session: Session, param: str) -> list[Transaction]:
-    """Description of what this does."""
-    # Logic here
-    return []
+# For recursive operations
+rm -rf directory            # NOT: rm -r directory
+cp -rf source dest          # NOT: cp -r source dest
 ```
+
+**Other commands that may prompt:**
+- `scp` - use `-o BatchMode=yes` for non-interactive
+- `ssh` - use `-o BatchMode=yes` to fail instead of prompting
+- `apt-get` - use `-y` flag
+- `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
