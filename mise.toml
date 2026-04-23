@@ -76,7 +76,7 @@ depends = ["audit:deps", "audit:trivy"]
 
 [tasks.sbom]
 description = "Generate an SBOM for the repository"
-run = "syft dir:. -o syft-json='${SBOM_OUTPUT:-sbom.syft.json}'"
+run = "syft dir:. -o syft-json=\"${SBOM_OUTPUT:-sbom.syft.json}\""
 
 [tasks."check:commits"]
 description = "Check conventional commits for new commits"
