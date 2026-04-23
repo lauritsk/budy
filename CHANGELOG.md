@@ -1,0 +1,139 @@
+# Changelog
+All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
+
+- - -
+## [v0.1.0](https://github.com/lauritsk/budy/compare/4826cfdc62a79b4608d9ebe567365865419c578b..v0.1.0) - 2026-04-23
+#### Features
+- add devcontainer with mise feature - ([a168be5](https://github.com/lauritsk/budy/commit/a168be5cea8a80fa6cb1cdd443aa6830ebb119b5)) - Karl Hans Laurits
+- add auto-categorization rules - ([d520824](https://github.com/lauritsk/budy/commit/d52082497a78f7eab311427343cae27f71381488)) - Karl Hans Laurits
+- add data export command - ([3d93b3d](https://github.com/lauritsk/budy/commit/3d93b3d48afb069afe487781202e498213953c56)) - Karl Hans Laurits
+- add transaction categories - ([e923797](https://github.com/lauritsk/budy/commit/e923797f98a06357af3d383cec99a18eb8cf6e59)) - Karl Hans Laurits
+- add update and delete transaction commands - ([f984e4f](https://github.com/lauritsk/budy/commit/f984e4f278172c41205329adb986ee6f0c63176a)) - Karl Hans Laurits
+- extend tests to cover budget automation, import and more reports - ([cbe148a](https://github.com/lauritsk/budy/commit/cbe148af5db0bce4e4be8faa514e4ce264676426)) - Karl Hans Laurits
+- implement setup command - ([3aea1be](https://github.com/lauritsk/budy/commit/3aea1be68aed60d905726f904c5bd8b16e0a28e1)) - Karl Hans Laurits
+- make ignoring yourself more robust with different formats etc - ([7adb8c8](https://github.com/lauritsk/budy/commit/7adb8c86b7502830b8d394aec4c58a3719eecf72)) - Karl Hans Laurits
+- implement ignoring configured username in reports - ([83d9da3](https://github.com/lauritsk/budy/commit/83d9da313a61693a4a0a707e41556fdbbc31d541)) - Karl Hans Laurits
+- refactor database to enable testing, add initial tests and enable testing task - ([e8acba6](https://github.com/lauritsk/budy/commit/e8acba697cd257f474be0ff0a788c137de8881ac)) - Karl Hans Laurits
+- implement loading settings from config file - ([0f8ce3b](https://github.com/lauritsk/budy/commit/0f8ce3b6d7640d94b79dce94b41220ec66b7acd2)) - Karl Hans Laurits
+- generate budgets and analyse volatility with machine learning - ([66e740a](https://github.com/lauritsk/budy/commit/66e740af17e0b736942462f9bd2ac8c542ecc60e)) - Karl Hans Laurits
+- sort top payees by transaction count and update docs - ([e54c255](https://github.com/lauritsk/budy/commit/e54c25529769aba854dc28ffbcac0d888b9282a2)) - Karl Hans Laurits
+- add new reports and views - ([e971026](https://github.com/lauritsk/budy/commit/e9710269bba9e00ebd2e2e1ce12b86d88ac7ac23)) - Karl Hans Laurits
+- extend transaction schema and update/enhance views - ([f1a66ab](https://github.com/lauritsk/budy/commit/f1a66ab949cf8e5891692092242594d41b8aa6fb)) - Karl Hans Laurits
+- add automatic docs generation and initial docs to readme - ([d923b5a](https://github.com/lauritsk/budy/commit/d923b5a652e639f85352c2432ec0b439addd5fda)) - Karl Hans Laurits
+- implement auto-budgeting functionality - ([66f8133](https://github.com/lauritsk/budy/commit/66f81333edf67adce8ea3ccc90fb4eaae77ffec2)) - Karl Hans Laurits
+- implement csv importing from estonian banks - ([4315a72](https://github.com/lauritsk/budy/commit/4315a726f442ef27a69d05885fc85f0482863acf)) - Karl Hans Laurits
+- show empty days in transactions list and reverse sorting - ([2d1c754](https://github.com/lauritsk/budy/commit/2d1c7547dc9069c6a06c82fe14a3be6c5182ca71)) - Karl Hans Laurits
+- make budget list show missing budgets, import views from separate files - ([928e6fa](https://github.com/lauritsk/budy/commit/928e6fac752c83e8c68269cf380203197840442b)) - Karl Hans Laurits
+- make seed skip some months to render placeholders - ([f2c519a](https://github.com/lauritsk/budy/commit/f2c519a7591eebce4ef0c789bffa771190f99a56)) - Karl Hans Laurits
+- implement yearly report - ([885c489](https://github.com/lauritsk/budy/commit/885c489ca3d6a043f053e77e3faef1c42672d80c)) - Karl Hans Laurits
+- make seed populate data for 3 years - ([5c288b1](https://github.com/lauritsk/budy/commit/5c288b1ad60d0affe6c1db6d579a424ba0731338)) - Karl Hans Laurits
+- add short command names and implement callback functions - ([d4a4bab](https://github.com/lauritsk/budy/commit/d4a4babe10076fd3b2d15f569b09de25ec2948fb)) - Karl Hans Laurits
+- add simple database seeding script - ([6f7fdd3](https://github.com/lauritsk/budy/commit/6f7fdd3b83371c593518781b9906e238dda2c2b7)) - Karl Hans Laurits
+- initialize project - ([4826cfd](https://github.com/lauritsk/budy/commit/4826cfdc62a79b4608d9ebe567365865419c578b)) - Karl Hans Laurits
+#### Bug Fixes
+- (**devcontainer**) fix devcontainer file json formatting error - ([74edf6f](https://github.com/lauritsk/budy/commit/74edf6f470703bceb587771cb8f9fd83a9da44dd)) - Karl Hans Laurits
+- simplify devcontainer file - ([fcacbd6](https://github.com/lauritsk/budy/commit/fcacbd6bd3fb8bdba771f16c16fb53562b17d4a8)) - Karl Hans Laurits
+- move polars import inside the function to speed up CLI startup - ([0a60875](https://github.com/lauritsk/budy/commit/0a608751bdbfe36a8924daa850d13b4e5e92a05e)) - Karl Hans Laurits
+- ensure the configuration directory exists before trying to read from it - ([32c8aca](https://github.com/lauritsk/budy/commit/32c8acaebe8d7428826e9596f8231364ed6238e3)) - Karl Hans Laurits
+- ensure tasks run in correct order - ([c33a80d](https://github.com/lauritsk/budy/commit/c33a80deb3e339b8c10084ca79aac33851e54cd7)) - Karl Hans Laurits
+- remove silent failure of config file loading and replace hard-coded $ values with settings - ([0ff99e7](https://github.com/lauritsk/budy/commit/0ff99e78de816224a91ae3f07d338b55e604a9f1)) - Karl Hans Laurits
+- delete unused constants file and fix last missing constant import - ([9c97bd2](https://github.com/lauritsk/budy/commit/9c97bd2a7c746670f634943f59bd9e5b574526dd)) - Karl Hans Laurits
+- format budget amount to no decimal places - ([7127b87](https://github.com/lauritsk/budy/commit/7127b8707a7567dcf3bcfcc7630a89ca731ab687)) - Karl Hans Laurits
+- add missing arguments - ([25a6e17](https://github.com/lauritsk/budy/commit/25a6e1701c7a465202fe00c28d22663151a2b877)) - Karl Hans Laurits
+- add missing arguments - ([9b27716](https://github.com/lauritsk/budy/commit/9b27716240738b47678f36cba7d11f7954a9d732)) - Karl Hans Laurits
+- remove short unused command names - ([8150ca1](https://github.com/lauritsk/budy/commit/8150ca1596d85d2764d6f5c9f452e48a338e1711)) - Karl Hans Laurits
+- just some bugfixes - ([a78abbb](https://github.com/lauritsk/budy/commit/a78abbb74e3031e7c2a741fd9126cb71c3a5d5c6)) - Karl Hans Laurits
+- refresh transactions before returning them - ([fb9fb19](https://github.com/lauritsk/budy/commit/fb9fb19bf817b264f03a451513ae6e0418ad92e4)) - Karl Hans Laurits
+- apply formatting - ([3300e70](https://github.com/lauritsk/budy/commit/3300e705b6ad374735c314fbec5a54b3427798c5)) - Karl Hans Laurits
+- remove old seed file - ([f807cb1](https://github.com/lauritsk/budy/commit/f807cb175adad5f4cc1391922371a3714e7c534f)) - Karl Hans Laurits
+- disable all short commands due to docs clutter - ([250ec14](https://github.com/lauritsk/budy/commit/250ec141b3ac137696c7324b3a3d08a7f771c2c1)) - Karl Hans Laurits
+- change daily transaction list limit back to 7 - ([7988e33](https://github.com/lauritsk/budy/commit/7988e33596bd3afab98bb3c0270be687619d87a4)) - Karl Hans Laurits
+- improve formatting and render placeholders - ([b932211](https://github.com/lauritsk/budy/commit/b932211f0f104bcc0f29303245b1589593cf3ae9)) - Karl Hans Laurits
+- run pytest via uv instead of standalone mode - ([9c7ba20](https://github.com/lauritsk/budy/commit/9c7ba2039ca7ad165d6c3eef3fce0d9cf3dcca5c)) - Karl Hans Laurits
+#### Documentation
+- refresh README and move CLI reference into docs - ([5e32b7e](https://github.com/lauritsk/budy/commit/5e32b7e80c4e1bf492ca6a64d9dd73c7891450bc)) - Karl Hans Laurits
+- add future roadmap items to TODO.md and update README - ([26766df](https://github.com/lauritsk/budy/commit/26766df6dab8d01d8122f8ecb4727e84abe0a387)) - Karl Hans Laurits
+- add AGENTS.md development guidelines and update mise.lock - ([97da4ef](https://github.com/lauritsk/budy/commit/97da4ef6f6a7f50cf10c057b125adc21ba89fec9)) - Karl Hans Laurits
+- remove sqlite from gitignore (not needed anymore) - ([5a46bd4](https://github.com/lauritsk/budy/commit/5a46bd404591412ef79a6811afc4e2e4fe9dc940)) - Karl Hans Laurits
+- remove completed todos - ([5c08b40](https://github.com/lauritsk/budy/commit/5c08b4070d440e2a0037b8a6a7e4d930f8919cec)) - Karl Hans Laurits
+- add helpful comments to complicated functions - ([24882e0](https://github.com/lauritsk/budy/commit/24882e09af8e0e825c5e3dea46c10895d6226312)) - Karl Hans Laurits
+- unify docstring formats - ([a6de859](https://github.com/lauritsk/budy/commit/a6de8594e119d9a7e3c7782b4e6fad4e6e2b8a00)) - Karl Hans Laurits
+- complete ci todo item - ([01cdd91](https://github.com/lauritsk/budy/commit/01cdd914fa1c032cf5452111e74d122e204db180)) - Karl Hans Laurits
+- rewrite some comments - ([dd1c8c5](https://github.com/lauritsk/budy/commit/dd1c8c5d6a68fb32fc08303ec2d127eefbb12704)) - Karl Hans Laurits
+- complete write tests todo item - ([7781ef6](https://github.com/lauritsk/budy/commit/7781ef62aec8ce1fdcf3ec0027ceecd3a13d8493)) - Karl Hans Laurits
+- complete config reading todo item - ([57b8fec](https://github.com/lauritsk/budy/commit/57b8fec283515427380d1187a1ca90afe5bb6ce7)) - Karl Hans Laurits
+- regenerate docs - ([058a77b](https://github.com/lauritsk/budy/commit/058a77b032e674bc8ef1ad7581b895977dbe3641)) - Karl Hans Laurits
+- add todo to implement excluding yourself from reports - ([4866b88](https://github.com/lauritsk/budy/commit/4866b889c295c729d02d32f2c530a299b446e00e)) - Karl Hans Laurits
+- add todo to set up ci - ([e8bf780](https://github.com/lauritsk/budy/commit/e8bf780e6beecaaddc7eb861c480db88e13aee0b)) - Karl Hans Laurits
+- add todo list - ([85f17ff](https://github.com/lauritsk/budy/commit/85f17ff540ef84b2f5fedd0a3673a3762b125a18)) - Karl Hans Laurits
+#### Continuous Integration
+- add unified check workflow and commit validation - ([1eea566](https://github.com/lauritsk/budy/commit/1eea566e7c813915e50bc061e51846789426319c)) - Karl Hans Laurits
+#### Refactoring
+- move commands from folders to single files - ([a85fbc7](https://github.com/lauritsk/budy/commit/a85fbc71a009270159fbf6bacc586704d7054805)) - Karl Hans Laurits
+- move base importer class to module root - ([b669422](https://github.com/lauritsk/budy/commit/b66942253c0806e798d9165728df8f9abd984668)) - Karl Hans Laurits
+- remove scikit-learn dep and refactor with simpler methods - ([82ec892](https://github.com/lauritsk/budy/commit/82ec892852663e6dddd18b6956783a498db708fb)) - Karl Hans Laurits
+- rename username to name (makes more sense) - ([4dfe74b](https://github.com/lauritsk/budy/commit/4dfe74b5cb3f975afaee5150eff1ecf09ccd169c)) - Karl Hans Laurits
+- define banks via config file + some default built in - ([e10deab](https://github.com/lauritsk/budy/commit/e10deab3eae3822bf9bcf80db054813b99fe4066)) - Karl Hans Laurits
+- reorganise configs and schemas - ([3bf7c6f](https://github.com/lauritsk/budy/commit/3bf7c6ffc81fd41567ab09590fd625e3a83c92d7)) - Karl Hans Laurits
+- implement dtos for monthly budget report - ([6fdfca1](https://github.com/lauritsk/budy/commit/6fdfca165187c937fea6d98b9b442da6f2c86692)) - Karl Hans Laurits
+- make function parameters mandatory for views - ([dfc7fa9](https://github.com/lauritsk/budy/commit/dfc7fa973ecadf60a6bde98f1e605563b61f1633)) - Karl Hans Laurits
+- continue command function simplification and implement dtos - ([12a5a50](https://github.com/lauritsk/budy/commit/12a5a503f3c22a002f1d0e52a375a2b43691c5e4)) - Karl Hans Laurits
+- reimplement session logic and finish simplifying command functions - ([be1f8ba](https://github.com/lauritsk/budy/commit/be1f8bacf5385b99367b3b003758533e47497c0d)) - Karl Hans Laurits
+- simplify command functions and move banks to constants - ([46235b6](https://github.com/lauritsk/budy/commit/46235b676047c4fc207697ae805df17a345715c6)) - Karl Hans Laurits
+- service functions take in session directly and use more comprehensions - ([2d07623](https://github.com/lauritsk/budy/commit/2d07623142864ba186949f84c09d520de1d7a209)) - Karl Hans Laurits
+- make __init__.py files more consistent - ([7e82742](https://github.com/lauritsk/budy/commit/7e82742da00d191d9e3252d1f22f11cadc0f97bc)) - Karl Hans Laurits
+- move services into separate files under services directory - ([9cecb0f](https://github.com/lauritsk/budy/commit/9cecb0f63a80e84ce73390614f580423f5993dbc)) - Karl Hans Laurits
+- separate view logic services from commands - ([7792ff9](https://github.com/lauritsk/budy/commit/7792ff962747eb10ccd01c3dfa42b233b8705a4b)) - Karl Hans Laurits
+- separate view logic services from commands - ([1990c97](https://github.com/lauritsk/budy/commit/1990c970e08b3a2b3fe48ebbec400cb59336c6c6)) - Karl Hans Laurits
+- restructure importer files and simplify logic - ([afd6b0a](https://github.com/lauritsk/budy/commit/afd6b0acd01fd26e1621ce3528fd8f210c7865bf)) - Karl Hans Laurits
+- switch pandas to polars - ([f2dffd3](https://github.com/lauritsk/budy/commit/f2dffd3a8ae5955e65c2ecd46953d6ade440a05c)) - Karl Hans Laurits
+- switch to pandas for csv parsing - ([d2dd1b6](https://github.com/lauritsk/budy/commit/d2dd1b606df8f0d16f9e4dc7e6315215ffe03284)) - Karl Hans Laurits
+- import shared values from separate contants file - ([356c99a](https://github.com/lauritsk/budy/commit/356c99a92b06e4e5be1030178f2387a5ced0e555)) - Karl Hans Laurits
+- make views more reusable by returning instead of printing - ([a376a08](https://github.com/lauritsk/budy/commit/a376a084ef934079ec46409a3ae04b9ceb4fc6c1)) - Karl Hans Laurits
+- extract rendering functionality into separate functions - ([108853c](https://github.com/lauritsk/budy/commit/108853c252a7f9633c6408bdf4e311190f942e66)) - Karl Hans Laurits
+#### Miscellaneous Chores
+- (**deps**) update jdx/mise-action action to v4 - ([9c7fe89](https://github.com/lauritsk/budy/commit/9c7fe8949e208075af11435eeace6758ded1bd1a)) - renovate[bot]
+- (**deps**) update dependency uv_build to >=0.11.6,<0.12.0 - ([0d38364](https://github.com/lauritsk/budy/commit/0d383646d725f60107673288041dee4a751825a7)) - renovate[bot]
+- (**deps**) update dependencies and remove uv prepare option - ([a0b3939](https://github.com/lauritsk/budy/commit/a0b3939fd1a803ecd8a85c84f40d02e3449fb703)) - Karl Hans Laurits
+- (**deps**) update mise packages - ([0f5895c](https://github.com/lauritsk/budy/commit/0f5895c20a127c45bb5f929b2b6156f5bc71a00a)) - Karl Hans Laurits
+- (**deps**) update mise packages - ([5b110ca](https://github.com/lauritsk/budy/commit/5b110ca412202d859491da6c5385b3f609bcf11b)) - Karl Hans Laurits
+- (**deps**) update mise packages - ([f43c797](https://github.com/lauritsk/budy/commit/f43c797213310d7b37406dbfe168a54f91b8ea1e)) - Karl Hans Laurits
+- (**deps**) update mise lockfile - ([4ebb43e](https://github.com/lauritsk/budy/commit/4ebb43ea745ed4f0488d0ce625312bc44c285c44)) - Karl Hans Laurits
+- (**devcontainer**) update devcontainer config - ([e5654a2](https://github.com/lauritsk/budy/commit/e5654a22084380a3317859300d3d2ec4288165d2)) - Karl Hans Laurits
+- (**devcontainer**) update devcontainer setup - ([803ac95](https://github.com/lauritsk/budy/commit/803ac95ef23e3bf9f01ac4ef3d9ee02a25bb4470)) - Karl Hans Laurits
+- (**devcontainer**) update devcontainer config - ([74236ca](https://github.com/lauritsk/budy/commit/74236cad91ea1a4b552e3a0985b2c54b9cb74cbe)) - Karl Hans Laurits
+- (**mise**) update uv - ([c1edf93](https://github.com/lauritsk/budy/commit/c1edf938f0a375e9b7a05238aa297cd40372510f)) - Karl Hans Laurits
+- (**release**) align changelog config - ([6c266f3](https://github.com/lauritsk/budy/commit/6c266f39d60512a86ab0352ac953964126d6931a)) - Karl Hans Laurits
+- (**uv**) update uv lockfile - ([7c41539](https://github.com/lauritsk/budy/commit/7c41539e7a70d7456e6b29da38075a0273623e5a)) - Karl Hans Laurits
+- (**uv**) update uv tooling and lockfile - ([cb13443](https://github.com/lauritsk/budy/commit/cb134434099404855e6cb9171d0a241c2b80e1c6)) - Karl Hans Laurits
+- sync beads agent setup - ([bf7c235](https://github.com/lauritsk/budy/commit/bf7c23553c88d3ec249209f1eaba2c078ad0d8f7)) - Karl Hans Laurits
+- add devcontainer config - ([649af40](https://github.com/lauritsk/budy/commit/649af403a75c6316acd00ae8bd3cfcf0a83e4126)) - Karl Hans Laurits
+- standardize repo automation - ([1645761](https://github.com/lauritsk/budy/commit/164576103dbe394b76effdab27e44091245fb948)) - Karl Hans Laurits
+- add renovate.json - ([44bad70](https://github.com/lauritsk/budy/commit/44bad7028558a9d5d81d5425852da350bf05c7d6)) - renovate[bot]
+- update uv tooling and lock constraints - ([ce851b0](https://github.com/lauritsk/budy/commit/ce851b0169bd524e00cc8b9ef3d3a481bc3e9c51)) - Karl Hans Laurits
+- add provenance verification to mise lockfile - ([9400280](https://github.com/lauritsk/budy/commit/9400280d8522b795fdd2cfb3f69b3f4c3dd38489)) - Karl Hans Laurits
+- record uv provenance in mise lock - ([02f7e96](https://github.com/lauritsk/budy/commit/02f7e96b57faccc2417995155da129068f5f6af7)) - Karl Hans Laurits
+- update devcontainer features for fish and mise - ([75ab0e3](https://github.com/lauritsk/budy/commit/75ab0e37dd7dc31d914f2d8ec5ce23df59012949)) - Karl Hans Laurits
+- add mise setup entrypoint - ([ba9b93c](https://github.com/lauritsk/budy/commit/ba9b93c9d615dc27f3e8a17b2d3fbdb8579e4b6e)) - Karl Hans Laurits
+- add gitleaks pre-commit checks - ([fb37db8](https://github.com/lauritsk/budy/commit/fb37db88354fdb0484c3b628b785b89f2c30b0bb)) - Karl Hans Laurits
+- remove fnox and update deps - ([b079795](https://github.com/lauritsk/budy/commit/b079795f4bf6f73a0dbf45ce2e7ee4a5e48739eb)) - Karl Hans Laurits
+- add auto prepare for mise uv - ([28414b7](https://github.com/lauritsk/budy/commit/28414b70d80417dc64065ed0252eb52ae3e5d3c3)) - Karl Hans Laurits
+- remove todo, add fnox setup - ([a46c09a](https://github.com/lauritsk/budy/commit/a46c09a2308901cbc2f7f20ea91fda0183087718)) - Karl Hans Laurits
+- update packages - ([790b5dc](https://github.com/lauritsk/budy/commit/790b5dc76be23fa160ff53c4b9a91e32b507a3f7)) - Karl Hans Laurits
+- update ty - ([a3a2139](https://github.com/lauritsk/budy/commit/a3a21395ff5b31bc25d9ac260e411e1f5e0b6b26)) - Karl Hans Laurits
+- update deps - ([cb2686e](https://github.com/lauritsk/budy/commit/cb2686e966233ab6573f786c5a658111feedea85)) - Karl Hans Laurits
+- clear out todos - ([f969644](https://github.com/lauritsk/budy/commit/f9696441d7f919127e5c28c0ac65b665172d9b39)) - Karl Hans Laurits
+- switch to native backends for ty, ruff and update uv - ([64f1f05](https://github.com/lauritsk/budy/commit/64f1f0574fa5fcc36539aa1f27b56a71971e134b)) - Karl Hans Laurits
+- update uv - ([8083585](https://github.com/lauritsk/budy/commit/80835852cf1f98fc53075d86bffa0c1528ae586e)) - Karl Hans Laurits
+- remove helix and sqlite and update ty - ([c6d78c3](https://github.com/lauritsk/budy/commit/c6d78c36c9e8492c031034faee925f0cd57443ba)) - Karl Hans Laurits
+- update packages - ([721002c](https://github.com/lauritsk/budy/commit/721002c62834b517ffaf15a4a83c776402dea5de)) - Karl Hans Laurits
+- update ty and ruff - ([af13e84](https://github.com/lauritsk/budy/commit/af13e848017ba46705d4d11998f39043ab1c7e78)) - Karl Hans Laurits
+- remove helix editor files and update packages - ([72b40d2](https://github.com/lauritsk/budy/commit/72b40d20d9e61b2121f8c95be9825bc111309850)) - Karl Hans Laurits
+- add todo to read from config and/or env - ([2730f70](https://github.com/lauritsk/budy/commit/2730f70ef1c1c6bef3a5e5e76f537678a59b62e8)) - Karl Hans Laurits
+- complete decoupling todo item - ([1df57c2](https://github.com/lauritsk/budy/commit/1df57c2e7c78a07d99ba8b4e21829ec94c662ca3)) - Karl Hans Laurits
+- update uv and python - ([8da7913](https://github.com/lauritsk/budy/commit/8da79130467af94cf00bf4fa899ee9777376b9a0)) - Karl Hans Laurits
+- move reports to their own directory - ([b5e6c0a](https://github.com/lauritsk/budy/commit/b5e6c0a715a65b65fbedf8eea703c3f4198e5c76)) - Karl Hans Laurits
+
+- - -
+
+Changelog generated by [cocogitto](https://github.com/cocogitto/cocogitto).
