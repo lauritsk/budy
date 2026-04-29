@@ -7,7 +7,7 @@ actionlint = "1.7.12"
 cosign = "3.0.6"
 syft = "1.43.0"
 goreleaser = "2.15.4"
-uv = "0.11.7"
+uv = "0.11.8"
 
 [tasks.setup]
 description = "Sync project dependencies"
