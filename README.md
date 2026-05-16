@@ -7,6 +7,12 @@ Budy is local-first: it stores your data in SQLite, imports bank CSV exports, an
 > [!NOTE]
 > By default, Budy stores both `config.toml` and `budy.db` in your platform app-data directory. Set `BUDY_DB_URL` if you want to use a different database URL.
 
+## Status
+
+- Maturity: usable personal CLI
+- Primary command: `mise run check`
+- Release target: GitHub release / Python package artifact
+
 ## Features
 
 - Import bank statement CSVs into a local SQLite database
