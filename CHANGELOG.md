@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v0.1.1](https://github.com/lauritsk/budy/compare/656d57747de633f03d7bd4a090a83737da9a18e6..v0.1.1) - 2026-05-16
+#### Bug Fixes
+- fix syft task shell escaping - ([45ff297](https://github.com/lauritsk/budy/commit/45ff297a57ae3a53dfa00879b801b5a25beba5c1)) - Karl Hans Laurits
+#### Documentation
+- add contributing guide - ([e32d38a](https://github.com/lauritsk/budy/commit/e32d38a319212927d31c4b82a898afcb36176acd)) - Karl Hans Laurits
+#### Build system
+- simplify mise task commands - ([aa3ad6c](https://github.com/lauritsk/budy/commit/aa3ad6c8269754d8e254e522899e34407383bafb)) - Karl Hans Laurits
+- manage ty via project deps - ([656d577](https://github.com/lauritsk/budy/commit/656d57747de633f03d7bd4a090a83737da9a18e6)) - Karl Hans Laurits
+#### Miscellaneous Chores
+- update deps and remove beads - ([a4d4fee](https://github.com/lauritsk/budy/commit/a4d4fee104bd4d34daf82e8b1b5f237e143c7b52)) - Karl Hans Laurits
+- update deps - ([7c57ad5](https://github.com/lauritsk/budy/commit/7c57ad5fc33568a4881f2b0eace4890ab6594eaf)) - Karl Hans Laurits
+- update deps - ([4768960](https://github.com/lauritsk/budy/commit/4768960c79876d2463ce6f043a7622bc2a5c25a1)) - Karl Hans Laurits
+
+- - -
+
 ## [v0.1.0](https://github.com/lauritsk/budy/compare/4826cfdc62a79b4608d9ebe567365865419c578b..v0.1.0) - 2026-04-23
 #### Features
 - add devcontainer with mise feature - ([a168be5](https://github.com/lauritsk/budy/commit/a168be5cea8a80fa6cb1cdd443aa6830ebb119b5)) - Karl Hans Laurits
