@@ -1,52 +1,46 @@
+[env]
+HK_MISE = 1
+
 [tools]
-cocogitto = "7.0.0"
-trivy = "0.70.0"
-shellcheck = "0.11.0"
 actionlint = "1.7.12"
+cocogitto = "7.0.0"
 cosign = "3.0.6"
-syft = "1.44.0"
 goreleaser = "2.15.4"
-uv = "0.11.14"
+hk = "1.44.3"
+pkl = "0.31.1"
+ruff = "0.15.12"
+rumdl = "0.1.87"
+shellcheck = "0.11.0"
+shfmt = "3.13.1"
+syft = "1.44.0"
+tombi = "0.10.2"
+ty = "0.0.34"
+uv = "0.11.8"
 
-[tasks.setup]
-description = "Sync project dependencies"
-depends = ["setup:pre-commit"]
-run = "uv sync --locked"
+[hooks]
+postinstall = "hk install --mise"
 
-[tasks."setup:pre-commit"]
-description = "Install git pre-commit hook"
-run = "mise generate git-pre-commit --write --task=pre-commit"
+[tasks.budy]
+description = "Run budy"
+run = "uv run budy"
 
-[tasks."pre-commit"]
-description = "Run pre-commit checks"
-depends = ["lint"]
+[tasks.install]
+description = "Install project dependencies"
+run = "uv sync --locked --dev"
 
-[tasks.format]
-description = "Format project source files"
-run = "uv format --preview-features format"
-
-[tasks."lint:format"]
-description = "Check project formatting"
-run = "uv format --preview-features format --check"
-
-[tasks."lint:actions"]
-description = "Lint GitHub Actions workflows"
-run = "actionlint"
-
-[tasks."lint:shell"]
-description = "Lint shell scripts"
-run = "find . -type f -name '*.sh' -exec shellcheck {} +"
+[tasks.fix]
+description = "Run hk-managed fixers across the repository"
+depends = ["install"]
+run = "hk fix --all"
 
 [tasks.lint]
-description = "Run all lint checks"
-depends = ["lint:format", "lint:actions", "lint:shell"]
-
-[tasks.typecheck]
-description = "Type-check project"
-run = "uv run ty check"
+description = "Run hk-managed checks across the repository"
+depends = ["install"]
+run = "hk check --all"
 
 [tasks.test]
 description = "Run test suite"
+depends = ["install"]
 run = "uv run pytest"
 
 [tasks.build]
@@ -55,53 +49,22 @@ run = "uv build"
 
 [tasks.docs]
 description = "Regenerate CLI docs"
+depends = ["install"]
 run = "uv run typer budy utils docs --output docs/cli.md --name budy"
 
 [tasks."docs:check"]
 description = "Check that CLI docs are up to date"
+depends = ["install"]
 run = "tmp=$(mktemp) && trap 'rm -f \"$tmp\"' EXIT && uv run typer budy utils docs --output \"$tmp\" --name budy && diff -u docs/cli.md \"$tmp\""
-
-[tasks."audit:deps"]
-description = "Audit project dependencies"
-run = "uv audit --preview-features audit --locked"
-
-[tasks."audit:trivy"]
-description = "Audit repository files with Trivy, including secrets"
-run = "trivy fs --scanners vuln,misconfig,secret --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 ."
-
-[tasks.audit]
-description = "Run all audit checks"
-depends = ["audit:deps", "audit:trivy"]
-
-[tasks.sbom]
-description = "Generate an SBOM for the repository"
-run = "syft dir:. -o syft-json=\"${SBOM_OUTPUT:-sbom.syft.json}\""
-
-[tasks."check:commits"]
-description = "Check conventional commits for new commits"
-run = "cog check"
-
-[tasks."release:version"]
-description = "Create the next version and tag"
-run = "cog bump --auto"
-
-[tasks."release:check"]
-description = "Validate GoReleaser configuration when present"
-run = "goreleaser check"
-
-[tasks."release:verify"]
-description = "Run GoReleaser snapshot from a clean worktree when configured"
-run = "goreleaser release --snapshot --clean"
-
-[tasks."release:publish"]
-description = "Publish the current tagged release when configured"
-depends = ["check", "release:verify"]
-run = "goreleaser release --clean"
-
-[tasks.release]
-description = "Publish the current tagged release"
-depends = ["release:publish"]
 
 [tasks.check]
 description = "Run project checks"
-depends = ["lint", "typecheck", "test", "build", "docs:check", "audit", "check:commits", "release:check"]
+depends = ["lint", "test", "build", "docs:check"]
+
+[tasks."release:bump"]
+description = "Bump project version"
+run = "cog bump --auto"
+
+[tasks."release:publish"]
+description = "Publish release"
+run = "goreleaser release --clean"
