@@ -16,7 +16,7 @@ budy = "budy:app"
 
 [dependency-groups]
 dev = [
-  "hypothesis==6.152.4",
+  "hypothesis==6.152.9",
   "pytest==9.0.3",
   "ruff==0.15.12",
   "ty==0.0.34",
