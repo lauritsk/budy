@@ -1,92 +1,56 @@
 # budy
 
-An itsy bitsy CLI budgeting assistant for people who want to track spending, set budgets, and inspect bank data without leaving the terminal.
+An itsy bitsy CLI budgeting assistant for tracking spending, budgets, and bank statement imports from the terminal.
 
-Budy is local-first: it stores your data in SQLite, imports bank CSV exports, and gives you practical reports like monthly budget status, top payees, weekday spending habits, and outlier detection.
+This is a small local-first Python application. It stores data in SQLite, imports bank CSV exports, and provides basic budget and spending reports.
 
-> [!NOTE]
-> By default, Budy stores both `config.toml` and `budy.db` in your platform app-data directory. Set `BUDY_DB_URL` if you want to use a different database URL.
+## What it does
 
-## Status
+- Imports expense transactions from bank CSV exports
+- Includes built-in import mappings for LHV, SEB, and Swedbank
+- Supports custom bank import formats through `config.toml`
+- Stores transactions, categories, budgets, and category rules in SQLite
+- Provides commands for adding, editing, listing, searching, and exporting transactions
+- Supports monthly budgets and budget suggestions based on spending history
+- Generates reports for monthly spending, yearly spending, payees, weekdays, and spending volatility
 
-- Maturity: usable personal CLI
-- Primary command: `mise run check`
-- Release target: GitHub release / Python package artifact
+## Code layout
 
-## Features
+```text
+src/budy/
+  __init__.py       CLI entrypoint and command registration
+  config.py         application configuration and default paths
+  database.py       SQLite/SQLModel database setup
+  schemas.py        database models
+  setup.py          interactive first-run setup
+  importer.py       bank CSV import logic
+  transactions.py   transaction commands
+  categories.py     category and auto-categorization commands
+  budgets.py        budget commands and budget generation
+  reports.py        spending and budget reports
 
-- Import bank statement CSVs into a local SQLite database
-- Built-in presets for **LHV**, **SEB**, and **Swedbank**
-- Define custom bank import formats in `config.toml`
-- Add, update, delete, list, export, and search transactions
-- Organize spending with categories and import-time auto-categorization rules
-- Set monthly budgets or generate suggestions from historical spending
-- Inspect your finances with monthly, yearly, payee, weekday, and volatility reports
-- Export transactions as CSV or JSON
-
-## Requirements
-
-- Python **3.14+**
-- [`mise`](https://mise.jdx.dev/)
-
-This repository uses `mise` and `uv` for setup and execution.
-
-## Quick start
-
-Clone the repo, install the toolchain, sync dependencies, then run the interactive setup:
-
-```bash
-mise install
-mise run setup
-mise exec uv -- uv run budy setup
+tests/              pytest test suite
 ```
 
-The setup flow will:
-
-1. ask for your name
-2. let you choose a currency symbol
-3. write a `config.toml`
-4. optionally import your first bank CSV
-
-## Typical workflow
+## Main CLI areas
 
 ```bash
-# Add a category
-mise exec uv -- uv run budy categories add Groceries --color green
-
-# Add an auto-categorization rule used during CSV import
-mise exec uv -- uv run budy categories rules add spotify --category-id 1
-
-# Import a bank statement
-mise exec uv -- uv run budy transactions import --bank lhv --file ./statement.csv
-
-# Generate budget suggestions from historical data
-mise exec uv -- uv run budy budgets generate --year 2026 --yes
-
-# View reports
-mise exec uv -- uv run budy reports month
-mise exec uv -- uv run budy reports payees
-mise exec uv -- uv run budy reports volatility
+budy setup
+budy transactions --help
+budy categories --help
+budy budgets --help
+budy reports --help
 ```
 
-## Core commands
+## Data storage
 
-| Goal | Command |
-| --- | --- |
-| Interactive setup | `mise exec uv -- uv run budy setup` |
-| Add a transaction | `mise exec uv -- uv run budy transactions add --amount 12.50` |
-| List recent transactions | `mise exec uv -- uv run budy transactions list` |
-| Import a CSV statement | `mise exec uv -- uv run budy transactions import --bank lhv --file ./statement.csv` |
-| Export transactions | `mise exec uv -- uv run budy transactions export --output ./transactions.csv --format csv` |
-| Add a monthly budget | `mise exec uv -- uv run budy budgets add --amount 500 --month 4 --year 2026` |
-| Generate budgets automatically | `mise exec uv -- uv run budy budgets generate --year 2026 --yes` |
-| Show monthly budget status | `mise exec uv -- uv run budy reports month --month 4 --year 2026` |
-| Search transactions | `mise exec uv -- uv run budy reports search grocery` |
-| Show yearly overview | `mise exec uv -- uv run budy reports year --year 2026` |
+By default, Budy stores `config.toml` and `budy.db` in the platform app-data directory. The database URL can be overridden with `BUDY_DB_URL`.
+
+Monetary amounts are stored as integer cents. Data is modeled with SQLModel and persisted to SQLite by default.
 
 ## CSV imports
 
-Budy imports **expenses** from bank CSV exports using bank-specific column mappings.
+Budy imports expenses from bank CSV exports using bank-specific column mappings.
 
 Built-in bank configs:
 
@@ -94,7 +58,7 @@ Built-in bank configs:
 - `seb`
 - `swedbank`
 
-If your bank is not built in, add a custom section to `config.toml`:
+Custom bank formats can be added in `config.toml`:
 
 ```toml
 [banks.my_bank]
@@ -109,40 +73,15 @@ receiver_col = "Payee"
 description_col = "Memo"
 ```
 
-> [!TIP]
-> Auto-categorization rules are applied during import by matching the combined receiver and description text case-insensitively.
+Auto-categorization rules are applied during import by matching receiver and description text case-insensitively.
 
 ## Reports
 
-Budy includes a small but useful reporting layer:
+Available report commands include:
 
-- **`reports month`**: compare budget vs actual spending for a month
-- **`reports year`**: inspect budget status across the full year
-- **`reports search`**: find transactions by receiver or description
-- **`reports payees`**: rank payees by spend or frequency
-- **`reports weekday`**: see average spend by day of week
-- **`reports volatility`**: flag unusually large transactions and overall spending variability
-
-When your name is configured, Budy also tries to ignore transfers to yourself in reports.
-
-## Data model notes
-
-- Monetary amounts are stored as **integer cents**
-- Transactions, budgets, categories, and category rules are persisted with `SQLModel`
-- SQLite is the default database
-- You can override the database with `BUDY_DB_URL`
-
-## Development
-
-Common project tasks:
-
-```bash
-mise run setup
-mise run test
-mise run typecheck
-mise run build
-mise run docs
-mise run check
-```
-
-The full generated CLI reference lives in [docs/cli.md](docs/cli.md).
+- `reports month`
+- `reports year`
+- `reports search`
+- `reports payees`
+- `reports weekday`
+- `reports volatility`
